@@ -29,7 +29,7 @@ export function HydrateFallback() {
 
 export default function Home({ loaderData }: Route.ComponentProps) {
 	return (
-		<div className="min-h-screen bg-[#FE5F55] ">
+		<div className="min-h-screen">
 			<Hero mocks_enabled={loaderData !== null} />
 			<Footer />
 		</div>

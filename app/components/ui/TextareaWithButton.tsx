@@ -4,7 +4,7 @@ export function TextareaWithButton() {
   return (
     <div className="grid w-full gap-2">
       <Textarea placeholder="Add description" />
-      <Button variant={'ghost'}>Add habit</Button>
+      <Button>Add habit</Button>
     </div>
   )
 }
