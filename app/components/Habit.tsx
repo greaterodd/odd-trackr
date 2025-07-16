@@ -1,15 +1,7 @@
 import { cn } from "~/lib/utils";
 import { Button } from "./ui/Button";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "./ui/dialog";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { AlertTriangle } from "lucide-react";
 
 export interface HabitData {
 	id: string;
@@ -35,18 +27,54 @@ export const formatDateKey = (date: Date): string => {
 const Habit = ({ habit, selectedDate, className, onToggleComplete, onDeleteHabit }: HabitProps) => {
 	const dateKey = formatDateKey(selectedDate);
 	const isCompleted = habit.completions[dateKey] || false;
-	const [isDialogOpen, setIsDialogOpen] = useState(false);
-	
-	const handleDelete = () => {
-		onDeleteHabit(habit.id);
-		setIsDialogOpen(false);
+	const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+	const [deleteTimeout, setDeleteTimeout] = useState<NodeJS.Timeout | null>(null);
+
+	const handleDeleteClick = () => {
+		// Clear any existing timeout
+		if (deleteTimeout) {
+			clearTimeout(deleteTimeout);
+		}
+		
+		setShowDeleteConfirm(true);
+		
+		// Auto-cancel after 3 seconds
+		const timeout = setTimeout(() => {
+			setShowDeleteConfirm(false);
+		}, 6000);
+		setDeleteTimeout(timeout);
 	};
-	
+
+	const handleConfirmDelete = () => {
+		if (deleteTimeout) {
+			clearTimeout(deleteTimeout);
+		}
+		onDeleteHabit(habit.id);
+		setShowDeleteConfirm(false);
+	};
+
+	const handleCancelDelete = () => {
+		if (deleteTimeout) {
+			clearTimeout(deleteTimeout);
+		}
+		setShowDeleteConfirm(false);
+	};
+
+	// Clean up timeout on unmount
+	useEffect(() => {
+		return () => {
+			if (deleteTimeout) {
+				clearTimeout(deleteTimeout);
+			}
+		};
+	}, [deleteTimeout]);
+
 	return (
 		<div
 			className={cn(
 				"bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4 shadow-sm hover:shadow-md transition-all",
 				isCompleted && "bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800",
+				showDeleteConfirm && "border-red-200 dark:border-red-800 shadow-red-100 dark:shadow-red-900/20",
 				className
 			)}
 		>
@@ -83,45 +111,46 @@ const Habit = ({ habit, selectedDate, className, onToggleComplete, onDeleteHabit
 						variant={isCompleted ? "default" : "outline"}
 						onClick={() => onToggleComplete(habit.id, selectedDate)}
 						className={cn(
-							"shrink-0",
+							"shrink-0 transition-all",
 							isCompleted && "bg-green-600 hover:bg-green-700"
 						)}
 					>
 						{isCompleted ? "✓ Done" : "Mark Done"}
 					</Button>
-					<Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-						<DialogTrigger asChild>
-							<Button
-								variant="destructive"
-								size="sm"
-								className="px-3 py-1.5"
-							>
-								Delete
-							</Button>
-						</DialogTrigger>
-						<DialogContent>
-							<DialogHeader>
-								<DialogTitle>Delete Habit</DialogTitle>
-								<DialogDescription>
-									Are you sure you want to delete the habit "{habit.title}"? This action cannot be undone.
-								</DialogDescription>
-							</DialogHeader>
-							<DialogFooter>
-								<Button
-									variant="outline"
-									onClick={() => setIsDialogOpen(false)}
-								>
-									Cancel
-								</Button>
+					
+					{showDeleteConfirm ? (
+						<div className="flex items-center gap-2 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg px-3 py-2 shadow-sm animate-in fade-in duration-200">
+							<AlertTriangle className="h-4 w-4 text-red-600 dark:text-red-400" />
+							<span className="text-xs font-medium text-red-700 dark:text-red-300 mr-1">Delete?</span>
+							<div className="flex gap-1">
 								<Button
 									variant="destructive"
-									onClick={handleDelete}
+									size="sm"
+									className="px-2.5 py-1 text-xs h-7 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-md shadow-sm"
+									onClick={handleConfirmDelete}
 								>
-									Delete Habit
+									Yes
 								</Button>
-							</DialogFooter>
-						</DialogContent>
-					</Dialog>
+								<Button
+									variant="secondary"
+									size="sm"
+									className="px-2.5 py-1 text-xs h-7 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 font-semibold rounded-md shadow-sm"
+									onClick={handleCancelDelete}
+								>
+									No
+								</Button>
+							</div>
+						</div>
+					) : (
+						<Button
+							variant="ghost"
+							size="sm"
+							className="px-3 py-1.5 text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all"
+							onClick={handleDeleteClick}
+						>
+							Delete
+						</Button>
+					)}
 				</div>
 			</div>
 		</div>
