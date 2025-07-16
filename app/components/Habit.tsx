@@ -50,26 +50,15 @@ const Habit = ({ habit, selectedDate, className, onToggleComplete, onDeleteHabit
 				className
 			)}
 		>
-			<div className="flex items-start justify-between mb-2">
+			<div className="mb-2">
 				<h3 className={cn(
-					"text-lg font-semibold mb-2",
+					"text-lg font-semibold",
 					isCompleted
 						? "text-green-800 dark:text-green-200 line-through"
 						: "text-gray-900 dark:text-gray-100"
 				)}>
 					{habit.title}
 				</h3>
-				<Button
-					size="sm"
-					variant={isCompleted ? "default" : "outline"}
-					onClick={() => onToggleComplete(habit.id, selectedDate)}
-					className={cn(
-						"ml-2 shrink-0",
-						isCompleted && "bg-green-600 hover:bg-green-700"
-					)}
-				>
-					{isCompleted ? "✓ Done" : "Mark Done"}
-				</Button>
 			</div>
 			<p className={cn(
 				"text-sm mb-3",
@@ -89,6 +78,17 @@ const Habit = ({ habit, selectedDate, className, onToggleComplete, onDeleteHabit
 							Completed: {selectedDate.toLocaleDateString()}
 						</span>
 					)}
+					<Button
+						size="sm"
+						variant={isCompleted ? "default" : "outline"}
+						onClick={() => onToggleComplete(habit.id, selectedDate)}
+						className={cn(
+							"shrink-0",
+							isCompleted && "bg-green-600 hover:bg-green-700"
+						)}
+					>
+						{isCompleted ? "✓ Done" : "Mark Done"}
+					</Button>
 					<Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
 						<DialogTrigger asChild>
 							<Button

@@ -2,6 +2,14 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useState, useEffect } from "react";
+import {
+	Dialog,
+	DialogContent,
+	DialogHeader,
+	DialogTitle,
+	DialogTrigger,
+} from "./ui/dialog";
+import { List } from "lucide-react";
 import { Input } from "./ui/Input";
 import { Button } from "./ui/Button";
 import { Textarea } from "./ui/Textarea";
@@ -97,10 +105,8 @@ const Hero = ({ selectedDate, onDateChange }: HeroProps) => {
 		resolver: zodResolver(habitSchema),
 	});
 
-	const onSubmit = async (data: HabitFormData) => {
+	const onSubmit = (data: HabitFormData) => {
 		try {
-			// Simulate API call
-			await new Promise((resolve) => setTimeout(resolve, 1000));
 			
 			// Create new habit
 			const newHabit: HabitData = {
@@ -181,24 +187,36 @@ const Hero = ({ selectedDate, onDateChange }: HeroProps) => {
 					</Button>
 				</form>
 			</div>
-			
-			{/* Habits Display Section */}
-			{visibleHabits.length > 0 && (
-				<div className="mt-12 w-full max-w-2xl">
-					<h2 className="text-2xl font-semibold mb-6 text-center">Your Habits</h2>
-					<div className="flex flex-col gap-4">
-						{visibleHabits.map((habit) => (
-							<Habit
-								key={habit.id}
-								habit={habit}
-								selectedDate={selectedDate}
-								onToggleComplete={toggleHabitCompletion}
-								onDeleteHabit={deleteHabit}
-							/>
-						))}
-					</div>
-				</div>
-			)}
+			<Dialog>
+				<DialogTrigger asChild>
+					<Button variant="outline" size="icon" className="mt-4">
+						<List className="h-4 w-4" />
+					</Button>
+				</DialogTrigger>
+				<DialogContent className="sm:max-w-[425px]">
+					<DialogHeader>
+						<DialogTitle>Your Habits</DialogTitle>
+					</DialogHeader>
+					{/* Habits Display Section */}
+					{visibleHabits.length > 0 ? (
+						<div className="mt-4 w-full max-w-2xl">
+							<div className="flex flex-col gap-4">
+								{visibleHabits.map((habit) => (
+									<Habit
+										key={habit.id}
+										habit={habit}
+										selectedDate={selectedDate}
+										onToggleComplete={toggleHabitCompletion}
+										onDeleteHabit={deleteHabit}
+									/>
+								))}
+							</div>
+						</div>
+					) : (
+						<p>No habits to display for this date.</p>
+					)}
+				</DialogContent>
+			</Dialog>
 		</div>
 	);
 };
