@@ -152,46 +152,58 @@ const Hero = ({ selectedDate, onDateChange }: HeroProps) => {
 	const visibleHabits = habits.filter(habit => habit.startDate <= selectedDate);
 
 	return (
-		<div className="flex items-center py-12 flex-col">
-			<h1 className="text-5xl font-bold">Tracker</h1>
-			<div className="flex flex-col gap-3">
-				<p className="text-3xl font-semibold mb-2">The to-do list that helps you form good habits</p>
-				<div className="text-center mb-4">
-					<p className="text-lg text-gray-600 dark:text-gray-400">
+		<div className="flex items-center py-12 md:py-16 lg:py-20 flex-col">
+			<h1 className="text-5xl md:text-6xl lg:text-7xl font-bold">Tracker</h1>
+			<div className="flex flex-col gap-3 md:gap-4 lg:gap-5">
+				<p className="text-3xl md:text-4xl lg:text-5xl font-semibold mb-2">The to-do list that helps you form good habits</p>
+				<div className="text-center mb-4 md:mb-6">
+					<p className="text-lg md:text-xl lg:text-2xl text-gray-600 dark:text-gray-400">
 						{selectedDate.toDateString()}
 					</p>
 				</div>
-				<form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-3">
-					<div className="flex flex-col gap-1">
+				<form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-3 md:gap-4 lg:gap-5">
+					<div className="flex flex-col gap-1 md:gap-2">
 						<Input
 							{...register("title")}
 							placeholder="Add habit title"
 							aria-invalid={errors.title ? "true" : "false"}
+							className="md:text-lg lg:text-xl"
 						/>
 						{errors.title && (
-							<span className="text-sm text-red-500">{errors.title.message}</span>
+							<span className="text-sm md:text-base text-red-500">{errors.title.message}</span>
 						)}
 					</div>
-					<div className="flex flex-col gap-1">
+					<div className="flex flex-col gap-1 md:gap-2">
 						<Textarea
 							{...register("description")}
 							placeholder="Add description"
 							aria-invalid={errors.description ? "true" : "false"}
+							className="md:text-lg lg:text-xl"
 						/>
 						{errors.description && (
-							<span className="text-sm text-red-500">{errors.description.message}</span>
+							<span className="text-sm md:text-base text-red-500">{errors.description.message}</span>
 						)}
 					</div>
-					<Button type="submit" disabled={isSubmitting}>
+					<Button type="submit" disabled={isSubmitting} className="md:text-lg lg:text-xl md:py-6 lg:py-8">
 						{isSubmitting ? "Adding habit..." : "Add habit"}
 					</Button>
 				</form>
 			</div>
 			<Dialog>
 				<DialogTrigger asChild>
-					<Button variant="outline" size="icon" className="mt-4">
-						<List className="h-4 w-4" />
-					</Button>
+					<div className="relative mt-6">
+						<Button variant="outline" size="icon" className="border border-gray-900 dark:border-gray-100 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+							<List className="h-5 w-5" />
+						</Button>
+						{visibleHabits.length > 0 && (
+							<div className="absolute -top-1 -right-1">
+								<span className="relative flex h-3 w-3">
+									<span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+									<span className="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span>
+								</span>
+							</div>
+						)}
+					</div>
 				</DialogTrigger>
 				<DialogContent className="sm:max-w-[425px]">
 					<DialogHeader>
