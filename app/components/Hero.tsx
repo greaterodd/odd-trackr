@@ -24,9 +24,8 @@ const habitSchema = z.object({
 		.max(100, "Habit title must be less than 100 characters"),
 	description: z
 		.string()
-		.min(1, "Description is required")
-		.min(10, "Description must be at least 10 characters")
-		.max(500, "Description must be less than 500 characters"),
+		.max(320, "Description must be less than 500 characters")
+		.optional(),
 });
 
 type HabitFormData = z.infer<typeof habitSchema>;
@@ -112,7 +111,7 @@ const Hero = ({ selectedDate, onDateChange }: HeroProps) => {
 			const newHabit: HabitData = {
 				id: crypto.randomUUID(),
 				title: data.title,
-				description: data.description,
+				description: data.description ?? '',
 				startDate: selectedDate,
 				completions: {},
 			};
@@ -150,6 +149,10 @@ const Hero = ({ selectedDate, onDateChange }: HeroProps) => {
 
 	// Filter habits to show only those that started on or before the selected date
 	const visibleHabits = habits.filter(habit => habit.startDate <= selectedDate);
+	// Count habits that are not completed for the selected date
+	const incompleteHabitsCount = visibleHabits.filter(
+		(habit) => !habit.completions[formatDateKey(selectedDate)]
+	).length;
 
 	return (
 		<div className="flex items-center py-12 md:py-16 lg:py-20 flex-col">
@@ -195,7 +198,7 @@ const Hero = ({ selectedDate, onDateChange }: HeroProps) => {
 						<Button variant="outline" size="icon" className="border border-gray-900 dark:border-gray-100 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
 							<List className="h-5 w-5" />
 						</Button>
-						{visibleHabits.length > 0 && (
+						{incompleteHabitsCount > 0 && (
 							<div className="absolute -top-1 -right-1">
 								<span className="relative flex h-3 w-3">
 									<span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
