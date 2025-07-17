@@ -7,6 +7,7 @@ export interface HabitData {
 	id: string;
 	title: string;
 	description: string;
+	isGood: boolean;
 	startDate: Date; // When the habit was created
 	completions: Record<string, boolean>; // Key: YYYY-MM-DD, Value: completed status
 }
@@ -29,6 +30,9 @@ const Habit = ({ habit, selectedDate, className, onToggleComplete, onDeleteHabit
 	const isCompleted = habit.completions[dateKey] || false;
 	const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 	const [deleteTimeout, setDeleteTimeout] = useState<NodeJS.Timeout | null>(null);
+
+	const isBadHabitCompleted = !habit.isGood && !isCompleted;
+	const isGoodHabitCompleted = habit.isGood && isCompleted;
 
 	const handleDeleteClick = () => {
 		// Clear any existing timeout
@@ -73,24 +77,30 @@ const Habit = ({ habit, selectedDate, className, onToggleComplete, onDeleteHabit
 		<div
 			className={cn(
 				"bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4 shadow-sm hover:shadow-md transition-all",
-				isCompleted && "bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800",
+				(isGoodHabitCompleted || isBadHabitCompleted) && "bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800",
 				showDeleteConfirm && "border-red-200 dark:border-red-800 shadow-red-100 dark:shadow-red-900/20",
 				className
 			)}
 		>
-			<div className="mb-2">
+			<div className="mb-2 flex items-center gap-2">
 				<h3 className={cn(
 					"text-lg font-semibold",
-					isCompleted
+					(isGoodHabitCompleted || isBadHabitCompleted)
 						? "text-green-800 dark:text-green-200 line-through"
 						: "text-gray-900 dark:text-gray-100"
 				)}>
 					{habit.title}
 				</h3>
+				<span className={cn(
+					"text-xs font-semibold px-2 py-1 rounded-full",
+					habit.isGood ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200" : "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200"
+				)}>
+					{habit.isGood ? "Good" : "Bad"}
+				</span>
 			</div>
 			<p className={cn(
 				"text-sm mb-3",
-				isCompleted
+				(isGoodHabitCompleted || isBadHabitCompleted)
 					? "text-green-700 dark:text-green-300"
 					: "text-gray-600 dark:text-gray-300"
 			)}>
@@ -126,21 +136,21 @@ const Habit = ({ habit, selectedDate, className, onToggleComplete, onDeleteHabit
 						</div>
 					) : (
 						<>
-							{isCompleted && (
+							{(isGoodHabitCompleted || isBadHabitCompleted) && (
 								<span className="text-green-600 dark:text-green-400">
 									Completed: {selectedDate.toLocaleDateString()}
 								</span>
 							)}
 							<Button
 								size="sm"
-								variant={isCompleted ? "default" : "outline"}
+								variant={(isGoodHabitCompleted || isBadHabitCompleted) ? "default" : "outline"}
 								onClick={() => onToggleComplete(habit.id, selectedDate)}
 								className={cn(
 									"shrink-0 transition-all",
-									isCompleted && "bg-green-600 hover:bg-green-700"
+									(isGoodHabitCompleted || isBadHabitCompleted) && "bg-green-600 hover:bg-green-700"
 								)}
 							>
-								{isCompleted ? "✓ Done" : "Mark Done"}
+								{(isGoodHabitCompleted || isBadHabitCompleted) ? "✓ Done" : "Mark Done"}
 							</Button>
 							<Button
 								variant="ghost"

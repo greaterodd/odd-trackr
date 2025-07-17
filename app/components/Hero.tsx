@@ -13,6 +13,7 @@ import { List } from "lucide-react";
 import { Input } from "./ui/Input";
 import { Button } from "./ui/Button";
 import { Textarea } from "./ui/Textarea";
+import { cn } from "~/lib/utils";
 import Habit, { type HabitData, formatDateKey } from "./Habit";
 
 // Form validation schema
@@ -26,6 +27,7 @@ const habitSchema = z.object({
 		.string()
 		.max(320, "Description must be less than 500 characters")
 		.optional(),
+	isGood: z.boolean(),
 });
 
 type HabitFormData = z.infer<typeof habitSchema>;
@@ -80,6 +82,7 @@ const loadHabitsFromStorage = (): HabitData[] => {
 const Hero = ({ selectedDate, onDateChange }: HeroProps) => {
 	const [habits, setHabits] = useState<HabitData[]>([]);
 	const [isInitialized, setIsInitialized] = useState(false);
+	const [isGood, setIsGood] = useState(true);
 	
 	// Load habits from localStorage on component mount
 	useEffect(() => {
@@ -102,6 +105,9 @@ const Hero = ({ selectedDate, onDateChange }: HeroProps) => {
 		reset,
 	} = useForm<HabitFormData>({
 		resolver: zodResolver(habitSchema),
+		defaultValues: {
+			isGood: true,
+		}
 	});
 
 	const onSubmit = (data: HabitFormData) => {
@@ -111,7 +117,8 @@ const Hero = ({ selectedDate, onDateChange }: HeroProps) => {
 			const newHabit: HabitData = {
 				id: crypto.randomUUID(),
 				title: data.title,
-				description: data.description ?? '',
+				description: data.description ?? "",
+				isGood,
 				startDate: selectedDate,
 				completions: {},
 			};
@@ -187,9 +194,33 @@ const Hero = ({ selectedDate, onDateChange }: HeroProps) => {
 							<span className="text-sm md:text-base text-red-500">{errors.description.message}</span>
 						)}
 					</div>
-					<Button type="submit" disabled={isSubmitting} className="md:text-lg lg:text-xl md:py-6 lg:py-8">
-						{isSubmitting ? "Adding habit..." : "Add habit"}
-					</Button>
+					<div className="flex items-center gap-4">
+						<Button type="submit" disabled={isSubmitting} className="flex-1 md:text-lg lg:text-xl h-16">
+							{isSubmitting ? "Adding..." : "Add Habit"}
+						</Button>
+						<div className="flex items-center justify-center gap-1 bg-gray-100 dark:bg-gray-800 p-1 rounded-lg h-16">
+							<Button
+								type="button"
+								onClick={() => setIsGood(true)}
+								className={cn(
+									"px-4 md:text-base lg:text-lg transition-colors",
+									isGood ? "bg-green-500 hover:bg-green-600 text-white" : "bg-transparent hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-800 dark:text-gray-200"
+								)}
+							>
+								Good
+							</Button>
+							<Button
+								type="button"
+								onClick={() => setIsGood(false)}
+								className={cn(
+									"px-4 md:text-base lg:text-lg transition-colors",
+									!isGood ? "bg-red-500 hover:bg-red-600 text-white" : "bg-transparent hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-800 dark:text-gray-200"
+								)}
+							>
+								Bad
+							</Button>
+						</div>
+					</div>
 				</form>
 			</div>
 			<Dialog>
