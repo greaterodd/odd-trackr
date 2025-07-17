@@ -222,47 +222,47 @@ const Hero = ({ selectedDate, onDateChange }: HeroProps) => {
 						</div>
 					</div>
 				</form>
-			</div>
-			<Dialog>
-				<DialogTrigger asChild>
-					<div className="relative mt-6">
-						<Button variant="outline" size="icon" className="border border-gray-900 dark:border-gray-100 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
-							<List className="h-5 w-5" />
-						</Button>
-						{incompleteHabitsCount > 0 && (
-							<div className="absolute -top-1 -right-1">
-								<span className="relative flex h-3 w-3">
-									<span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-									<span className="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span>
-								</span>
-							</div>
-						)}
-					</div>
-				</DialogTrigger>
-				<DialogContent className="sm:max-w-[425px]">
-					<DialogHeader>
-						<DialogTitle>Your Habits</DialogTitle>
-					</DialogHeader>
-					{/* Habits Display Section */}
-					{visibleHabits.length > 0 ? (
-						<div className="mt-4 w-full max-w-2xl">
-							<div className="flex flex-col gap-4">
-								{visibleHabits.map((habit) => (
-									<Habit
-										key={habit.id}
-										habit={habit}
-										selectedDate={selectedDate}
-										onToggleComplete={toggleHabitCompletion}
-										onDeleteHabit={deleteHabit}
-									/>
-								))}
-							</div>
+				<Dialog>
+					<DialogTrigger asChild>
+						<div className="relative mt-6 max-w-fit">
+							<Button variant="outline" size="icon" className="border border-gray-900 dark:border-gray-100 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+								<List className="h-5 w-5" />
+							</Button>
+							{incompleteHabitsCount > 0 && (
+								<div className="absolute -top-1 -right-1">
+									<span className="relative flex h-3 w-3">
+										<span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+										<span className="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span>
+									</span>
+								</div>
+							)}
 						</div>
-					) : (
-						<p>No habits to display for this date.</p>
-					)}
-				</DialogContent>
-			</Dialog>
+					</DialogTrigger>
+					<DialogContent className="sm:max-w-[425px]">
+						<DialogHeader>
+							<DialogTitle>Your Habits</DialogTitle>
+						</DialogHeader>
+						{/* Habits Display Section */}
+						{visibleHabits.length > 0 ? (
+							<div className="mt-4 w-full max-w-2xl">
+								<div className="flex flex-col gap-4">
+									{visibleHabits.map((habit) => (
+										<Habit
+											key={habit.id}
+											habit={habit}
+											selectedDate={selectedDate}
+											onToggleComplete={toggleHabitCompletion}
+											onDeleteHabit={deleteHabit}
+										/>
+									))}
+								</div>
+							</div>
+						) : (
+							<p>No habits to display for this date.</p>
+						)}
+					</DialogContent>
+				</Dialog>
+			</div>
 		</div>
 	);
 };
