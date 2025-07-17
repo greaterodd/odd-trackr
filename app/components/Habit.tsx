@@ -101,23 +101,6 @@ const Habit = ({ habit, selectedDate, className, onToggleComplete, onDeleteHabit
 					Started: {habit.startDate.toLocaleDateString()}
 				</span>
 				<div className="flex items-center gap-2">
-					{isCompleted && (
-						<span className="text-green-600 dark:text-green-400">
-							Completed: {selectedDate.toLocaleDateString()}
-						</span>
-					)}
-					<Button
-						size="sm"
-						variant={isCompleted ? "default" : "outline"}
-						onClick={() => onToggleComplete(habit.id, selectedDate)}
-						className={cn(
-							"shrink-0 transition-all",
-							isCompleted && "bg-green-600 hover:bg-green-700"
-						)}
-					>
-						{isCompleted ? "✓ Done" : "Mark Done"}
-					</Button>
-					
 					{showDeleteConfirm ? (
 						<div className="flex items-center gap-2 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg px-3 py-2 shadow-sm animate-in fade-in duration-200">
 							<AlertTriangle className="h-4 w-4 text-red-600 dark:text-red-400" />
@@ -142,14 +125,32 @@ const Habit = ({ habit, selectedDate, className, onToggleComplete, onDeleteHabit
 							</div>
 						</div>
 					) : (
-						<Button
-							variant="ghost"
-							size="sm"
-							className="px-3 py-1.5 text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all"
-							onClick={handleDeleteClick}
-						>
-							Delete
-						</Button>
+						<>
+							{isCompleted && (
+								<span className="text-green-600 dark:text-green-400">
+									Completed: {selectedDate.toLocaleDateString()}
+								</span>
+							)}
+							<Button
+								size="sm"
+								variant={isCompleted ? "default" : "outline"}
+								onClick={() => onToggleComplete(habit.id, selectedDate)}
+								className={cn(
+									"shrink-0 transition-all",
+									isCompleted && "bg-green-600 hover:bg-green-700"
+								)}
+							>
+								{isCompleted ? "✓ Done" : "Mark Done"}
+							</Button>
+							<Button
+								variant="ghost"
+								size="sm"
+								className="px-3 py-1.5 text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all"
+								onClick={handleDeleteClick}
+							>
+								Delete
+							</Button>
+						</>
 					)}
 				</div>
 			</div>
