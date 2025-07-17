@@ -15,6 +15,7 @@ import { Button } from "./ui/Button";
 import { Textarea } from "./ui/Textarea";
 import { cn } from "~/lib/utils";
 import Habit, { type HabitData, formatDateKey } from "./Habit";
+import { toast } from "sonner";
 
 // Form validation schema
 const habitSchema = z.object({
@@ -97,6 +98,23 @@ const Hero = ({ selectedDate, onDateChange }: HeroProps) => {
 			saveHabitsToStorage(habits);
 		}
 	}, [habits, isInitialized]);
+
+	// Keyboard shortcut for toggling habit type
+	useEffect(() => {
+		const handleKeyDown = (event: KeyboardEvent) => {
+			if (event.shiftKey && event.key === 'T') {
+				event.preventDefault();
+				setIsGood(prev => {
+					const newIsGood = !prev;
+					toast.success(`Habit type changed to ${newIsGood ? 'Good' : 'Bad'}`);
+					return newIsGood;
+				});
+			}
+		};
+
+		window.addEventListener('keydown', handleKeyDown);
+		return () => window.removeEventListener('keydown', handleKeyDown);
+	}, []);
 	
 	const {
 		register,
@@ -162,8 +180,9 @@ const Hero = ({ selectedDate, onDateChange }: HeroProps) => {
 	).length;
 
 	return (
-		<div className="flex items-center py-12 md:py-16 lg:py-20 flex-col">
-			<h1 className="text-5xl md:text-6xl lg:text-7xl font-bold">Tracker</h1>
+		<>
+			<div className="flex items-center py-12 md:py-16 lg:py-20 flex-col">
+				<h1 className="text-5xl md:text-6xl lg:text-7xl font-bold">Tracker</h1>
 			<div className="flex flex-col gap-3 md:gap-4 lg:gap-5">
 				<p className="text-3xl md:text-4xl lg:text-5xl font-semibold mb-2">The to-do list that helps you form good habits</p>
 				<div className="text-center mb-4 md:mb-6">
@@ -224,7 +243,7 @@ const Hero = ({ selectedDate, onDateChange }: HeroProps) => {
 				</form>
 				<Dialog>
 					<DialogTrigger asChild>
-						<div className="relative mt-6 max-w-fit">
+						<div className="relative max-w-fit">
 							<Button variant="outline" size="icon" className="border border-gray-900 dark:border-gray-100 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
 								<List className="h-5 w-5" />
 							</Button>
@@ -263,7 +282,8 @@ const Hero = ({ selectedDate, onDateChange }: HeroProps) => {
 					</DialogContent>
 				</Dialog>
 			</div>
-		</div>
+			</div>
+		</>
 	);
 };
 
