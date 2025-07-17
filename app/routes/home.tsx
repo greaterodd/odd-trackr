@@ -1,4 +1,5 @@
 import type { Route } from "./+types/home";
+import { useState } from "react";
 import Hero from "../components/Hero";
 import Footer from "../components/Footer";
 import { isRouteErrorResponse } from "react-router";
@@ -18,20 +19,28 @@ export async function clientLoader({ params }: Route.ClientLoaderArgs) {
 	return null;
 }
 
-export function HydrateFallback() {
-	return (
-		<div className="min-h-screen">
-			<Hero mocks_enabled={false} />
-			<Footer />
-		</div>
-	);
-}
-
 export default function Home({ loaderData }: Route.ComponentProps) {
+	const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+	
+	// Calculate earliest habit date for Footer navigation limits
+	// This will be passed from Hero component when habits are loaded
+	const [earliestHabitDate, setEarliestHabitDate] = useState<Date | undefined>();
+	
+	const handleDateChange = (date: Date) => {
+		setSelectedDate(date);
+	};
+
 	return (
-		<div className="min-h-screen">
-			<Hero mocks_enabled={loaderData !== null} />
-			<Footer />
+		<div className="min-h-screen pb-20"> {/* Add padding bottom for fixed footer */}
+			<Hero
+				selectedDate={selectedDate}
+				onDateChange={handleDateChange}
+			/>
+			<Footer
+				selectedDate={selectedDate}
+				onDateChange={handleDateChange}
+				earliestHabitDate={earliestHabitDate}
+			/>
 		</div>
 	);
 }
