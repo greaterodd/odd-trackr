@@ -1,18 +1,6 @@
-# Welcome to Odd Habit Track❤️!
+# Welcome to Odd Habit Trackr❤!
 
 A modern, production-ready template for building full-stack React applications using React Router.
-
-## Features
-
-- 🚀 Server-side rendering
-- ⚡️ Hot Module Replacement (HMR)
-- 📦 Asset bundling and optimization
-- 🔄 Data loading and mutations
-- 🔒 TypeScript by default
-- 🎉 TailwindCSS for styling
-- 🎨 Radix UI for components
-- 📚 Biome for code quality
-- 📖 [React Router docs](https://reactrouter.com/)
 
 ## Getting Started
 
