@@ -43,11 +43,8 @@ interface HeroProps {
 const HABITS_STORAGE_KEY = "odd-trackr-habits";
 
 // This type represents the raw habit data that can be found in localStorage.
-// It includes legacy fields for backward compatibility.
 type RawHabitFromStorage = Omit<HabitData, "startDate" | "completions"> & {
 	startDate?: string | Date;
-	createdAt?: string | Date; // Legacy field
-	completedToday?: boolean; // Legacy field
 	completions?: Record<string, boolean>;
 };
 
@@ -59,20 +56,6 @@ const Hero = ({ selectedDate }: HeroProps) => {
 			parse: (value: string): HabitData[] => {
 				const parsed: RawHabitFromStorage[] = JSON.parse(value);
 				return parsed.map((habit) => {
-					// Handle legacy data structure
-					if (habit.createdAt && !habit.startDate) {
-						return {
-							id: habit.id,
-							title: habit.title,
-							description: habit.description,
-							isGood: habit.isGood,
-							startDate: new Date(habit.createdAt),
-							completions: habit.completedToday
-								? { [formatDateKey(new Date())]: true }
-								: {},
-						};
-					}
-					// Handle new data structure
 					return {
 						...habit,
 						startDate: new Date(habit.startDate as string | Date),

@@ -1,5 +1,5 @@
 import { AlertTriangle } from "lucide-react";
-import { useEffect, useState } from "react";
+import { memo, useCallback, useEffect, useMemo, useState } from "react";
 import { cn } from "~/lib/utils";
 import { Button } from "./ui/Button";
 
@@ -25,24 +25,38 @@ export const formatDateKey = (date: Date): string => {
 	return date.toISOString().split("T")[0];
 };
 
-const Habit = ({
+const Habit = memo(({
 	habit,
 	selectedDate,
 	className,
 	onToggleComplete,
 	onDeleteHabit,
 }: HabitProps) => {
-	const dateKey = formatDateKey(selectedDate);
-	const isCompleted = habit.completions[dateKey] || false;
 	const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 	const [deleteTimeout, setDeleteTimeout] = useState<NodeJS.Timeout | null>(
 		null,
 	);
 
-	const isBadHabitCompleted = !habit.isGood && !isCompleted;
-	const isGoodHabitCompleted = habit.isGood && isCompleted;
+	// Memoize expensive calculations
+	const { dateKey, isCompleted, isBadHabitCompleted, isGoodHabitCompleted, formattedStartDate, formattedSelectedDate } = useMemo(() => {
+		const dateKey = formatDateKey(selectedDate);
+		const isCompleted = habit.completions[dateKey] || false;
+		const isBadHabitCompleted = !habit.isGood && !isCompleted;
+		const isGoodHabitCompleted = habit.isGood && isCompleted;
+		const formattedStartDate = habit.startDate.toLocaleDateString();
+		const formattedSelectedDate = selectedDate.toLocaleDateString();
+		
+		return {
+			dateKey,
+			isCompleted,
+			isBadHabitCompleted,
+			isGoodHabitCompleted,
+			formattedStartDate,
+			formattedSelectedDate,
+		};
+	}, [habit.completions, habit.isGood, habit.startDate, selectedDate]);
 
-	const handleDeleteClick = () => {
+	const handleDeleteClick = useCallback(() => {
 		// Clear any existing timeout
 		if (deleteTimeout) {
 			clearTimeout(deleteTimeout);
@@ -50,27 +64,31 @@ const Habit = ({
 
 		setShowDeleteConfirm(true);
 
-		// Auto-cancel after 3 seconds
+		// Auto-cancel after 6 seconds
 		const timeout = setTimeout(() => {
 			setShowDeleteConfirm(false);
 		}, 6000);
 		setDeleteTimeout(timeout);
-	};
+	}, [deleteTimeout]);
 
-	const handleConfirmDelete = () => {
+	const handleConfirmDelete = useCallback(() => {
 		if (deleteTimeout) {
 			clearTimeout(deleteTimeout);
 		}
 		onDeleteHabit(habit.id);
 		setShowDeleteConfirm(false);
-	};
+	}, [deleteTimeout, onDeleteHabit, habit.id]);
 
-	const handleCancelDelete = () => {
+	const handleCancelDelete = useCallback(() => {
 		if (deleteTimeout) {
 			clearTimeout(deleteTimeout);
 		}
 		setShowDeleteConfirm(false);
-	};
+	}, [deleteTimeout]);
+
+	const handleToggleComplete = useCallback(() => {
+		onToggleComplete(habit.id, selectedDate);
+	}, [onToggleComplete, habit.id, selectedDate]);
 
 	// Clean up timeout on unmount
 	useEffect(() => {
@@ -134,7 +152,7 @@ const Habit = ({
 			</p>
 			<div className="flex justify-between items-center text-xs">
 				<span className="text-gray-400 dark:text-gray-500">
-					Started: {habit.startDate.toLocaleDateString()}
+					Started: {formattedStartDate}
 				</span>
 				<div className="flex items-center gap-2">
 					{showDeleteConfirm ? (
@@ -166,12 +184,12 @@ const Habit = ({
 						<>
 							{isGoodHabitCompleted && (
 								<span className="text-green-600 dark:text-green-400">
-									Completed: {selectedDate.toLocaleDateString()}
+									Completed: {formattedSelectedDate}
 								</span>
 							)}
 							{isBadHabitCompleted && (
 								<span className="text-red-600 dark:text-red-400">
-									Avoided: {selectedDate.toLocaleDateString()}
+									Avoided: {formattedSelectedDate}
 								</span>
 							)}
 							<Button
@@ -181,7 +199,7 @@ const Habit = ({
 										? "default"
 										: "outline"
 								}
-								onClick={() => onToggleComplete(habit.id, selectedDate)}
+								onClick={handleToggleComplete}
 								className={cn(
 									"shrink-0 transition-all",
 									isGoodHabitCompleted && "bg-green-600 hover:bg-green-700",
@@ -206,6 +224,8 @@ const Habit = ({
 			</div>
 		</div>
 	);
-};
+});
+
+Habit.displayName = "Habit";
 
 export default Habit;
