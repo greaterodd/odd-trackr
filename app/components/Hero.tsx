@@ -42,47 +42,13 @@ interface HeroProps {
 
 const HABITS_STORAGE_KEY = "odd-trackr-habits";
 
-// Helper functions for localStorage
-const saveHabitsToStorage = (habits: HabitData[]) => {
-	try {
-		localStorage.setItem(HABITS_STORAGE_KEY, JSON.stringify(habits));
-	} catch (error) {
-		console.error("Failed to save habits to localStorage:", error);
-	}
-};
-
-const loadHabitsFromStorage = (): HabitData[] => {
-	try {
-		const stored = localStorage.getItem(HABITS_STORAGE_KEY);
-		if (stored) {
-			const parsed = JSON.parse(stored);
-			// Convert date strings back to Date objects and handle legacy data
-			return parsed.map((habit: any) => {
-				// Handle legacy data structure
-				if (habit.createdAt && !habit.startDate) {
-					return {
-						id: habit.id,
-						title: habit.title,
-						description: habit.description,
-						isGood: habit.isGood,
-						startDate: new Date(habit.createdAt),
-						completions: habit.completedToday
-							? { [formatDateKey(new Date())]: true }
-							: {},
-					};
-				}
-				// Handle new data structure
-				return {
-					...habit,
-					startDate: new Date(habit.startDate),
-					completions: habit.completions || {},
-				};
-			});
-		}
-	} catch (error) {
-		console.error("Failed to load habits from localStorage:", error);
-	}
-	return [];
+// This type represents the raw habit data that can be found in localStorage.
+// It includes legacy fields for backward compatibility.
+type RawHabitFromStorage = Omit<HabitData, "startDate" | "completions"> & {
+	startDate?: string | Date;
+	createdAt?: string | Date; // Legacy field
+	completedToday?: boolean; // Legacy field
+	completions?: Record<string, boolean>;
 };
 
 const Hero = ({ selectedDate }: HeroProps) => {
@@ -90,9 +56,10 @@ const Hero = ({ selectedDate }: HeroProps) => {
 		HABITS_STORAGE_KEY,
 		[],
 		{
-			parse: (value: string) => {
-				const parsed = JSON.parse(value);
-				return parsed.map((habit: any) => {
+			parse: (value: string): HabitData[] => {
+				const parsed: RawHabitFromStorage[] = JSON.parse(value);
+				return parsed.map((habit) => {
+					// Handle legacy data structure
 					if (habit.createdAt && !habit.startDate) {
 						return {
 							id: habit.id,
@@ -105,9 +72,10 @@ const Hero = ({ selectedDate }: HeroProps) => {
 								: {},
 						};
 					}
+					// Handle new data structure
 					return {
 						...habit,
-						startDate: new Date(habit.startDate),
+						startDate: new Date(habit.startDate as string | Date),
 						completions: habit.completions || {},
 					};
 				});
