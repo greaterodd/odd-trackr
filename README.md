@@ -1,4 +1,4 @@
-# Welcome to Odd Habit Trackr❤!
+# Welcome to Odd Habit Trackr ❤
 
 A modern, production-ready template for building full-stack React applications using React Router.
 
