@@ -1,10 +1,10 @@
-import type { Route } from "./+types/home";
 import { useState } from "react";
-import Hero from "../components/Hero";
-import Footer from "../components/Footer";
 import { isRouteErrorResponse } from "react-router";
+import Footer from "../components/Footer";
+import Hero from "../components/Hero";
+import type { Route } from "./+types/home";
 
-export function meta({}: Route.MetaArgs) {
+export function meta({ data }: Route.MetaArgs) {
 	return [
 		{ title: "Make it your own | Transformative" },
 		{ name: "description", content: "Welcome to your next project!" },
@@ -21,21 +21,22 @@ export async function clientLoader({ params }: Route.ClientLoaderArgs) {
 
 export default function Home({ loaderData }: Route.ComponentProps) {
 	const [selectedDate, setSelectedDate] = useState<Date>(new Date());
-	
+
 	// Calculate earliest habit date for Footer navigation limits
 	// This will be passed from Hero component when habits are loaded
-	const [earliestHabitDate, setEarliestHabitDate] = useState<Date | undefined>();
-	
+	const [earliestHabitDate, setEarliestHabitDate] = useState<
+		Date | undefined
+	>();
+
 	const handleDateChange = (date: Date) => {
 		setSelectedDate(date);
 	};
 
 	return (
-		<div className="min-h-screen pb-20"> {/* Add padding bottom for fixed footer */}
-			<Hero
-				selectedDate={selectedDate}
-				onDateChange={handleDateChange}
-			/>
+		<div className="min-h-screen pb-20">
+			{" "}
+			{/* Add padding bottom for fixed footer */}
+			<Hero selectedDate={selectedDate} onDateChange={handleDateChange} />
 			<Footer
 				selectedDate={selectedDate}
 				onDateChange={handleDateChange}
