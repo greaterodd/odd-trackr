@@ -6,7 +6,7 @@ import type { Route } from "./+types/home";
 
 export function meta({ data }: Route.MetaArgs) {
 	return [
-		{ title: "Make it your own | Transformative" },
+		{ title: "Trackr | Be one percent better every day" },
 		{ name: "description", content: "Welcome to your next project!" },
 	];
 }
