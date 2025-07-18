@@ -206,9 +206,13 @@ const Habit = memo(({
 									isBadHabitCompleted && "bg-red-600 hover:bg-red-700",
 								)}
 							>
-								{isGoodHabitCompleted || isBadHabitCompleted
+								{isGoodHabitCompleted
 									? "✓ Done"
-									: "Mark Done"}
+									: isBadHabitCompleted
+									? "✗ Avoided"
+									: habit.isGood
+									? "Mark Done"
+									: "Mark as Avoided"}
 							</Button>
 							<Button
 								variant="ghost"

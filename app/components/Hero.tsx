@@ -245,7 +245,7 @@ const Hero = ({ selectedDate }: HeroProps) => {
 								)}
 							</div>
 						</DialogTrigger>
-						<DialogContent className="sm:max-w-[425px]">
+						<DialogContent>
 							<DialogHeader>
 								<DialogTitle>Your Habits</DialogTitle>
 							</DialogHeader>
