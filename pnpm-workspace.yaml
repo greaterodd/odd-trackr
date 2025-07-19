@@ -2,4 +2,5 @@ onlyBuiltDependencies:
   - '@biomejs/biome'
   - '@tailwindcss/oxide'
   - esbuild
-  - msw
+  - mswzz
+  - '@clerk/shared'

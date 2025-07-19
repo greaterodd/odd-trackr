@@ -3,6 +3,7 @@ import { isRouteErrorResponse } from "react-router";
 import Footer from "../components/Footer";
 import Hero from "../components/Hero";
 import type { Route } from "./+types/home";
+import { useUser } from "@clerk/react-router";
 
 export function meta({ data }: Route.MetaArgs) {
 	return [
@@ -20,6 +21,27 @@ export async function clientLoader({ params }: Route.ClientLoaderArgs) {
 }
 
 export default function Home({ loaderData }: Route.ComponentProps) {
+	const { isSignedIn, user, isLoaded } = useUser();
+
+	if (!isLoaded) {
+		return (
+			<div className="min-h-screen flex items-center justify-center">
+				<div className="text-center space-y-4">
+					<div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto" />
+					<p className="text-gray-600">Checking authentication...</p>
+				</div>
+			</div>
+		);
+	}
+
+	if (!isSignedIn) {
+		return (
+			<div className="text-center">
+				Pal, please authenticate above to change your life
+			</div>
+		);
+	}
+
 	const [selectedDate, setSelectedDate] = useState<Date>(new Date());
 
 	// Calculate earliest habit date for Footer navigation limits
