@@ -7,3 +7,8 @@ public/mockServiceWorker.js
 # React Router
 /.react-router/
 /build/
+
+# Local development database files
+*.db
+*.sqlite
+local.db
