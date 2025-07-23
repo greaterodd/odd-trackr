@@ -14,8 +14,13 @@ export default function HabitTracker({ initialHabits }: HabitTrackerProps) {
 
   useEffect(() => {
     // Initialize the store with the server-loaded data
-    const habitsWithCompletion = initialHabits.map(h => ({ ...h, completed: false, completions: {} }));
-    setHabits(habitsWithCompletion);
+    // Ensure startDate is properly converted to Date object (JSON serialization converts it to string)
+    const habitsWithProperDates = initialHabits.map(habit => ({
+      ...habit,
+      startDate: new Date(habit.startDate) // Ensure it's a proper Date object
+    }));
+    
+    setHabits(habitsWithProperDates);
   }, [initialHabits, setHabits]);
 
   // This state is not used, but keeping it to match original logic

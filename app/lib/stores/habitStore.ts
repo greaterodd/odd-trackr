@@ -5,6 +5,7 @@ import type { Habit as DbHabit } from "../db/schema";
 export interface Habit extends DbHabit {
   completed?: boolean;
   completions: Record<string, boolean>;
+  isOptimistic?: boolean; // Flag for optimistic updates
 }
 
 interface HabitState {
