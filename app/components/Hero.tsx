@@ -130,7 +130,7 @@ const Hero = ({ selectedDate }: HeroProps) => {
 		toast.success("Habit added!");
 		
 		const formData = new FormData();
-		formData.append("_action", "createHabit");
+		formData.append("intent", "createHabit");
 		formData.append("title", data.title);
 		if (data.description) {
 			formData.append("description", data.description);
@@ -161,7 +161,7 @@ const Hero = ({ selectedDate }: HeroProps) => {
 			// Send to server in background
 			fetcher.submit(
 				{
-					_action: "toggleHabitCompletion",
+					intent: "toggleCompletion",
 					habitId,
 					date: dateKey,
 					completed: String(newCompletion),
@@ -180,7 +180,7 @@ const Hero = ({ selectedDate }: HeroProps) => {
 		// Send delete request to server
 		fetcher.submit(
 			{
-				_action: "deleteHabit",
+				intent: "deleteHabit",
 				habitId,
 			},
 			{ method: "post" },

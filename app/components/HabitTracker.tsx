@@ -33,7 +33,7 @@ export default function HabitTracker({ initialHabits }: HabitTrackerProps) {
   };
 
   return (
-    <div className="min-h-screen pb-20">
+    <div className="pb-20">
       {" "}
       {/* Add padding bottom for fixed footer */}
       <Hero selectedDate={selectedDate} onDateChange={handleDateChange} />

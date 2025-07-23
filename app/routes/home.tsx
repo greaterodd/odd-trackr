@@ -1,23 +1,30 @@
-import { isRouteErrorResponse, useLoaderData, type ActionFunctionArgs, type LoaderFunctionArgs } from "react-router";
+import {
+	type ActionFunctionArgs,
+	isRouteErrorResponse,
+	type LoaderFunctionArgs,
+	useLoaderData,
+} from "react-router";
 import type { Route } from "./+types/home";
 import type { Habit } from "../lib/stores/habitStore";
 import { useUser } from "@clerk/react-router";
 import { getAuth } from "@clerk/react-router/ssr.server";
-import { createClerkClient } from "@clerk/backend";
 import HabitTracker from "../components/HabitTracker";
-import { habitService, habitCompletionService, userService } from "../lib/db/services";
+import { habitService, habitCompletionService } from "../lib/db/services";
+import { ensureUserExists } from "../lib/auth/user-sync";
 import { randomUUID } from "node:crypto";
 
-const clerkClient = createClerkClient({ secretKey: process.env.CLERK_SECRET_KEY });
+// Simple type for valid action intents
+type ActionIntent = "createHabit" | "toggleCompletion" | "deleteHabit";
 
+// Helper function for JSON responses
 function json<T>(data: T, init?: ResponseInit): Response {
-  return new Response(JSON.stringify(data), {
-    ...init,
-    headers: {
-      "Content-Type": "application/json",
-      ...init?.headers,
-    },
-  });
+	return new Response(JSON.stringify(data), {
+		...init,
+		headers: {
+			"Content-Type": "application/json",
+			...init?.headers,
+		},
+	});
 }
 
 export function meta({ data }: Route.MetaArgs) {
@@ -33,61 +40,91 @@ export async function loader(args: LoaderFunctionArgs) {
 		return json({ habits: [] });
 	}
 
-	// Get or create user in our database
-	let dbUser = await userService.getUserById(userId);
+	try {
+		// Ensure user exists in our database
+		await ensureUserExists(userId);
 
-	if (!dbUser) {
-		try {
-			const clerkUser = await clerkClient.users.getUser(userId);
-			const primaryEmail = clerkUser.emailAddresses[0]?.emailAddress;
+		// Load user's habits
+		const dbHabits = await habitService.getUserHabits(userId);
 
-			if (primaryEmail) {
-				// Try to find user by email before creating
-				dbUser = await userService.getUserByEmail(primaryEmail);
+		// Get today's date in YYYY-MM-DD format
+		const today = new Date().toISOString().split("T")[0];
 
-				if (!dbUser) {
-					dbUser = await userService.createUser({
-						id: userId,
-						email: primaryEmail,
-						name: clerkUser.firstName ?? "User",
-					});
+		// Transform database habits to match UI interface and load completions
+		const habits = await Promise.all(
+			dbHabits.map(async (habit) => {
+				// Get all completions for this habit
+				const completions = await habitCompletionService.getHabitCompletions(
+					habit.id,
+				);
+
+				// Convert completions array to object with date keys
+				const completionsMap: Record<string, boolean> = {};
+				for (const completion of completions) {
+					completionsMap[completion.date] = completion.completed;
 				}
-			}
-		} catch (error) {
-			console.error("Error during user sync:", error);
-		}
-	}
 
-	if (!dbUser) {
+				return {
+					...habit,
+					startDate: new Date(habit.startDate), // Convert timestamp to Date
+					completions: completionsMap,
+					completed: completionsMap[today] || false, // Set today's completion status
+				};
+			}),
+		);
+
+		return json({ habits });
+	} catch (error) {
+		console.error("Error loading habits:", error);
+		// Return empty habits array on error rather than throwing
 		return json({ habits: [] });
 	}
-
-	const dbHabits = await habitService.getUserHabits(userId);
-	
-	// Get today's date in YYYY-MM-DD format
-	const today = new Date().toISOString().split('T')[0];
-	
-	// Transform database habits to match UI interface and load completions
-	const habits = await Promise.all(dbHabits.map(async (habit) => {
-		// Get all completions for this habit
-		const completions = await habitCompletionService.getHabitCompletions(habit.id);
-		
-		// Convert completions array to object with date keys
-		const completionsMap: Record<string, boolean> = {};
-		completions.forEach(completion => {
-			completionsMap[completion.date] = completion.completed;
-		});
-		
-		return {
-			...habit,
-			startDate: new Date(habit.startDate), // Convert timestamp to Date
-			completions: completionsMap,
-			completed: completionsMap[today] || false // Set today's completion status
-		};
-	}));
-	
-	return json({ habits });
 }
+
+// Action handlers map - much cleaner than switch statements
+const actionHandlers = {
+	async createHabit(formData: FormData, userId: string) {
+		const title = formData.get("title") as string;
+		const description = (formData.get("description") as string) || undefined;
+		const isGood = formData.get("isGood") as string;
+
+		const newHabit = await habitService.createHabit({
+			id: randomUUID(),
+			userId,
+			title,
+			description,
+			isGood: isGood === "true",
+			startDate: new Date(),
+		});
+
+		// Transform the new habit to match UI interface
+		return {
+			...newHabit,
+			startDate: new Date(newHabit.startDate),
+			completions: {},
+			completed: false,
+		};
+	},
+
+	async toggleCompletion(formData: FormData, userId: string) {
+		const habitId = formData.get("habitId") as string;
+		const date = formData.get("date") as string;
+		const completed = formData.get("completed") as string;
+
+		return await habitCompletionService.setCompletion({
+			id: randomUUID(),
+			habitId,
+			date,
+			completed: completed === "true",
+		});
+	},
+
+	async deleteHabit(formData: FormData, userId: string) {
+		const habitId = formData.get("habitId") as string;
+		await habitService.deleteHabit(habitId);
+		return { success: true, deletedId: habitId };
+	},
+};
 
 export async function action(args: ActionFunctionArgs) {
 	const { userId } = await getAuth(args);
@@ -95,70 +132,33 @@ export async function action(args: ActionFunctionArgs) {
 		return json({ error: "Unauthorized" }, { status: 401 });
 	}
 
-	const formData = await args.request.formData();
-	const { _action, ...values } = Object.fromEntries(formData);
+	try {
+		const formData = await args.request.formData();
+		const intent = formData.get("intent") as string;
 
-	if (_action === "createHabit") {
-		try {
-			const title = values.title as string;
-			const description = values.description as string | undefined;
-			
-			const newHabit = await habitService.createHabit({
-				id: randomUUID(),
-				userId,
-				title,
-				description,
-				isGood: values.isGood === "true",
-				startDate: new Date(),
-			});
-			
-			// Transform the new habit to match UI interface
-			const transformedHabit = {
-				...newHabit,
-				startDate: new Date(newHabit.startDate),
-				completions: {},
-				completed: false
-			};
-			
-			return json(transformedHabit);
-		} catch (error) {
-			console.error("Error creating habit:", error);
-			return json({ error: "Failed to create habit" }, { status: 500 });
+		const handler = actionHandlers[intent as keyof typeof actionHandlers];
+		if (!handler) {
+			return json({ error: "Invalid intent" }, { status: 400 });
 		}
-	}
 
-	if (_action === "toggleHabitCompletion") {
-		try {
-			const { habitId, date, completed } = values;
-			const updatedCompletion = await habitCompletionService.setCompletion({
-				id: randomUUID(),
-				habitId: habitId as string,
-				date: date as string,
-				completed: completed === "true",
-			});
-			return json(updatedCompletion);
-		} catch (error) {
-			console.error("Error toggling habit completion:", error);
-			return json({ error: "Failed to update habit completion" }, { status: 500 });
-		}
+		const result = await handler(formData, userId);
+		return json(result);
+	} catch (error) {
+		console.error("Action error:", error);
+		return json(
+			{
+				error:
+					error instanceof Error
+						? error.message
+						: "An unexpected error occurred",
+			},
+			{ status: 500 },
+		);
 	}
-
-	if (_action === "deleteHabit") {
-		try {
-			const { habitId } = values;
-			await habitService.deleteHabit(habitId as string);
-			return json({ success: true, deletedId: habitId });
-		} catch (error) {
-			console.error("Error deleting habit:", error);
-			return json({ error: "Failed to delete habit" }, { status: 500 });
-		}
-	}
-
-	return json({ error: "Invalid action" }, { status: 400 });
 }
 
 export default function Home() {
-	const { habits } = useLoaderData() as { habits: Habit[] };
+	const { habits } = useLoaderData<typeof loader>();
 	const { isSignedIn, user, isLoaded } = useUser();
 
 	if (!isLoaded) {
