@@ -136,6 +136,7 @@ const Hero = ({ selectedDate }: HeroProps) => {
 			formData.append("description", data.description);
 		}
 		formData.append("isGood", String(isGood));
+		formData.append("startDate", selectedDate.toISOString());
 		fetcher.submit(formData, { method: "post" });
 		reset();
 	};
@@ -219,14 +220,14 @@ const Hero = ({ selectedDate }: HeroProps) => {
 
 	return (
 		<>
-			<div className="flex items-center py-12 md:py-16 lg:py-20 flex-col">
+			<div className="flex items-center py-12 md:py-16 lg:py-20 flex-col max-w-2xl px-4 mx-auto lg:max-w-4xl">
 				<h1 className="text-5xl md:text-6xl lg:text-7xl font-bold">Tracker</h1>
 				<div className="flex flex-col gap-3 md:gap-4 lg:gap-5">
-					<p className="text-3xl md:text-4xl lg:text-5xl font-semibold mb-2">
-						The to-do list that helps you form good habits
+					<p className="text-3xl md:text-4xl lg:text-5xl font-semibold text-center">
+						Change your life, starting today
 					</p>
-					<div className="text-center mb-4 md:mb-6">
-						<p className="text-lg md:text-xl lg:text-2xl text-gray-600 dark:text-gray-400">
+					<div>
+						<p className="text-center text-lg md:text-xl lg:text-2xl text-gray-600 dark:text-gray-400">
 							{selectedDate.toDateString()}
 						</p>
 					</div>
