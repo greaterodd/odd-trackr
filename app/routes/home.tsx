@@ -12,6 +12,8 @@ import HabitTracker from "../components/HabitTracker";
 import { habitService, habitCompletionService } from "../lib/db/services";
 import { ensureUserExists } from "../lib/auth/user-sync";
 import { randomUUID } from "node:crypto";
+import { useOptimisticAuth } from "../lib/hooks/useOptimisticAuth";
+import { useOptimisticHabits } from "../lib/hooks/useOptimisticHabits";
 
 // Simple type for valid action intents
 type ActionIntent = "createHabit" | "toggleCompletion" | "deleteHabit";
@@ -158,21 +160,17 @@ export async function action(args: ActionFunctionArgs) {
 }
 
 export default function Home() {
-	const { habits } = useLoaderData<typeof loader>();
-	const { isSignedIn, user, isLoaded } = useUser();
+	const { habits: serverHabits } = useLoaderData<typeof loader>();
+	const { user } = useUser();
+	const { isSignedIn, wasSignedInBefore } = useOptimisticAuth();
+	const { habits, isFromCache, hasData } = useOptimisticHabits(
+		serverHabits, 
+		user?.id
+	);
 
-	if (!isLoaded) {
-		return (
-			<div className="min-h-screen flex items-center justify-center">
-				<div className="text-center space-y-4">
-					<div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto" />
-					<p className="text-gray-600">Checking authentication...</p>
-				</div>
-			</div>
-		);
-	}
-
-	if (!isSignedIn) {
+	// Show sign-in prompt only if we're certain user is not signed in
+	// and they weren't signed in before (no cached auth state)
+	if (isSignedIn === false && !wasSignedInBefore) {
 		return (
 			<div className="text-center">
 				Pal, please authenticate above to change your life
@@ -180,7 +178,15 @@ export default function Home() {
 		);
 	}
 
-	return <HabitTracker initialHabits={habits} />;
+	// Show app immediately with cached data or empty state
+	// The HabitTracker will handle loading states internally
+	return (
+		<HabitTracker 
+			initialHabits={habits} 
+			isFromCache={isFromCache}
+			isOptimistic={isSignedIn !== false && hasData}
+		/>
+	);
 }
 
 export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
