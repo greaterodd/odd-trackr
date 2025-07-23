@@ -21,11 +21,8 @@ export const userService = {
 		return user;
 	},
 
-	async getUserByGoogleId(googleId: string) {
-		const [user] = await db
-			.select()
-			.from(users)
-			.where(eq(users.googleId, googleId));
+	async getUserById(userId: string) {
+		const [user] = await db.select().from(users).where(eq(users.id, userId));
 		return user;
 	},
 
