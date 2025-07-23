@@ -118,7 +118,7 @@ const Hero = ({ selectedDate }: HeroProps) => {
 			title: data.title,
 			description: data.description || "",
 			isGood: isGood,
-			startDate: new Date(),
+			startDate: new Date(selectedDate), // Use selectedDate instead of today
 			completions: {},
 			completed: false,
 			createdAt: new Date(),

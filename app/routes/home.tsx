@@ -52,28 +52,29 @@ export async function loader(args: LoaderFunctionArgs) {
 		// Get today's date in YYYY-MM-DD format
 		const today = new Date().toISOString().split("T")[0];
 
-		// Transform database habits to match UI interface and load completions
-		const habits = await Promise.all(
-			dbHabits.map(async (habit) => {
-				// Get all completions for this habit
-				const completions = await habitCompletionService.getHabitCompletions(
-					habit.id,
-				);
+		// Get ALL completions for user in one query (instead of N queries)
+		const allCompletions = await habitCompletionService.getAllUserCompletions(userId);
+		
+		// Group completions by habitId for efficient lookup
+		const completionsByHabit: Record<string, Record<string, boolean>> = {};
+		for (const completion of allCompletions) {
+			if (!completionsByHabit[completion.habitId]) {
+				completionsByHabit[completion.habitId] = {};
+			}
+			completionsByHabit[completion.habitId][completion.date] = completion.completed;
+		}
 
-				// Convert completions array to object with date keys
-				const completionsMap: Record<string, boolean> = {};
-				for (const completion of completions) {
-					completionsMap[completion.date] = completion.completed;
-				}
-
-				return {
-					...habit,
-					startDate: new Date(habit.startDate), // Convert timestamp to Date
-					completions: completionsMap,
-					completed: completionsMap[today] || false, // Set today's completion status
-				};
-			}),
-		);
+		// Transform database habits to match UI interface
+		const habits = dbHabits.map((habit) => {
+			const completionsMap = completionsByHabit[habit.id] || {};
+			
+			return {
+				...habit,
+				startDate: new Date(habit.startDate), // Convert timestamp to Date
+				completions: completionsMap,
+				completed: completionsMap[today] || false, // Set today's completion status
+			};
+		});
 
 		return json({ habits });
 	} catch (error) {
@@ -89,6 +90,7 @@ const actionHandlers = {
 		const title = formData.get("title") as string;
 		const description = (formData.get("description") as string) || undefined;
 		const isGood = formData.get("isGood") as string;
+		const startDate = formData.get("startDate") as string;
 
 		const newHabit = await habitService.createHabit({
 			id: randomUUID(),
@@ -96,7 +98,7 @@ const actionHandlers = {
 			title,
 			description,
 			isGood: isGood === "true",
-			startDate: new Date(),
+			startDate: startDate ? new Date(startDate) : new Date(),
 		});
 
 		// Transform the new habit to match UI interface

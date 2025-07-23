@@ -123,6 +123,18 @@ export const habitCompletionService = {
 			.where(and(eq(habits.userId, userId), eq(habitCompletions.date, date)));
 	},
 
+	async getAllUserCompletions(userId: string) {
+		return await db
+			.select({
+				habitId: habitCompletions.habitId,
+				date: habitCompletions.date,
+				completed: habitCompletions.completed,
+			})
+			.from(habitCompletions)
+			.innerJoin(habits, eq(habits.id, habitCompletions.habitId))
+			.where(eq(habits.userId, userId));
+	},
+
 	async deleteCompletion(habitId: string, date: string) {
 		await db
 			.delete(habitCompletions)

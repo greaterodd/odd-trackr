@@ -63,7 +63,7 @@ export default function App({ loaderData }: Route.ComponentProps) {
 	return (
 		<ClerkProvider loaderData={loaderData} publishableKey={PUBLISHABLE_KEY}>
 			<QueryClientProvider client={queryClient}>
-				<header className="flex items-center justify-center py-8 px-4">
+				<header className="flex items-center justify-center py-8 px-4 min-h-24">
 					<SignedOut>
 						<NavLink to="/sign-in">Sign in</NavLink>
 					</SignedOut>
