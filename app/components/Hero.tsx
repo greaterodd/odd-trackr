@@ -87,7 +87,7 @@ const Hero = ({ selectedDate }: HeroProps) => {
 	}, [fetcher.data, fetcher.state, addHabit]);
 
 	useHotKey(
-		"T",
+		"Backspace",
 		() => {
 			setIsGood((prev) => {
 				const newIsGood = !prev;

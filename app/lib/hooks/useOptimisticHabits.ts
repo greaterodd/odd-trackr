@@ -42,15 +42,23 @@ export function useOptimisticHabits(serverHabits: Habit[], userId?: string) {
     }
   }, [userId]);
 
-  // Cache server habits when they arrive
+  // Cache server habits when they arrive, or clear cache if server has no habits
   useEffect(() => {
-    if (serverHabits.length > 0 && userId) {
-      const cacheData: CachedHabits = {
-        habits: serverHabits,
-        timestamp: Date.now(),
-        userId
-      };
-      localStorage.setItem(HABITS_CACHE_KEY, JSON.stringify(cacheData));
+    if (userId) {
+      if (serverHabits.length > 0) {
+        // Cache the server habits
+        const cacheData: CachedHabits = {
+          habits: serverHabits,
+          timestamp: Date.now(),
+          userId
+        };
+        localStorage.setItem(HABITS_CACHE_KEY, JSON.stringify(cacheData));
+      } else {
+        // Server has no habits, clear the cache to avoid stale data
+        localStorage.removeItem(HABITS_CACHE_KEY);
+        setCachedHabits([]);
+        setHasCachedData(false);
+      }
     }
   }, [serverHabits, userId]);
 
@@ -59,7 +67,7 @@ export function useOptimisticHabits(serverHabits: Habit[], userId?: string) {
   
   return {
     habits: habitsToShow,
-    isFromCache: hasCachedData && serverHabits.length === 0,
+    isFromCache: hasCachedData && serverHabits.length === 0 && cachedHabits.length > 0,
     hasData: habitsToShow.length > 0
   };
 }
