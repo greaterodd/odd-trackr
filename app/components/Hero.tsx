@@ -136,6 +136,7 @@ const Hero = ({ selectedDate }: HeroProps) => {
 			formData.append("description", data.description);
 		}
 		formData.append("isGood", String(isGood));
+		formData.append("startDate", String(optimisticHabit.startDate))
 		fetcher.submit(formData, { method: "post" });
 		reset();
 	};
