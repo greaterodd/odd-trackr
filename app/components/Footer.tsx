@@ -1,10 +1,10 @@
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { Button } from "./ui/button"; // 'Button' se importa de ui
-import { DatePicker } from "./DatePicker"; // ¡Importamos nuestro nuevo componente!
+import { Button } from "./ui/button"; 
+import { DatePicker } from "./DatePicker"; 
 
 interface FooterProps {
     selectedDate: Date;
-    onDateChange: (date: Date | undefined) => void; // Actualizamos el tipo aquí
+    onDateChange: (date: Date | undefined) => void;
     earliestHabitDate?: Date;
 }
 
@@ -14,7 +14,9 @@ const Footer = ({
     earliestHabitDate,
 }: FooterProps) => {
     const today = new Date();
-    today.setHours(0, 0, 0, 0); // Normalizamos 'today' para una comparación precisa
+    today.setHours(0, 0, 0, 0);
+
+    const isToday = selectedDate.toDateString() === today.toDateString();
 
     const goToPreviousDay = () => {
         const previousDay = new Date(selectedDate);
@@ -27,12 +29,12 @@ const Footer = ({
         nextDay.setDate(nextDay.getDate() + 1);
         onDateChange(nextDay);
     };
-    
-    // El 'DatePicker' ya maneja la selección, por lo que el botón 'Go to Today' se puede integrar o eliminar
-    // si se desea simplificar. Por ahora, lo mantenemos.
+
+        const goToToday = () => {
+        onDateChange(new Date());
+    };
 
     const canGoPrevious = !earliestHabitDate || selectedDate > earliestHabitDate;
-    const canGoNext = selectedDate < today;
 
     return (
         <footer className="fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 p-4">
@@ -48,16 +50,24 @@ const Footer = ({
                     Previous Day
                 </Button>
 
-                {/* === ÁREA MODIFICADA === */}
-                {/* Aquí usamos nuestro componente DatePicker */}
-                <DatePicker date={selectedDate} setDate={onDateChange} />
-                {/* === FIN DE ÁREA MODIFICADA === */}
-
+                <div className="flex flex-col items-center gap-1">
+                    <DatePicker date={selectedDate} setDate={onDateChange} />
+                    
+                    {!isToday && (
+                        <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={goToToday}
+                            className="h-auto p-0 text-xs text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-200"
+                        >
+                            Go to Today
+                        </Button>
+                    )}
+                </div>
                 <Button
                     variant="outline"
                     size="sm"
                     onClick={goToNextDay}
-                    disabled={!canGoNext}
                     className="flex items-center gap-2"
                 >
                     Next Day
