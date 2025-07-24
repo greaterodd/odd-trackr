@@ -9,10 +9,9 @@ import {
 
 // Users table - stores user authentication and profile data
 export const users = sqliteTable("users", {
-	id: text("id").primaryKey(),
+	id: text("id").primaryKey(), // This will store the Clerk User ID
 	email: text("email").notNull().unique(),
 	name: text("name").notNull(),
-	googleId: text("google_id").notNull().unique(),
 	createdAt: integer("created_at", { mode: "timestamp" })
 		.notNull()
 		.default(sql`(unixepoch())`),
