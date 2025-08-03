@@ -33,7 +33,7 @@ export default function HabitTracker({
   const [earliestHabitDate, setEarliestHabitDate] = useState<
     Date | undefined
   >();
-// === aqui cambie el codigo ===
+
   const handleDateChange = (date: Date | undefined) => {
     if (date) {
       setSelectedDate(date);
