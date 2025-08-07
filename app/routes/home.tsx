@@ -39,7 +39,7 @@ export function meta({ data }: Route.MetaArgs) {
 export async function loader(args: LoaderFunctionArgs) {
   const { userId } = await getAuth(args);
   if (!userId) {
-    return json({ habits: [] });
+    return json({ habits: [], isAuthenticated: false });
   }
 
   try {
@@ -78,11 +78,11 @@ export async function loader(args: LoaderFunctionArgs) {
       };
     });
 
-    return json({ habits });
+    return json({ habits, isAuthenticated: true });
   } catch (error) {
     console.error("Error loading habits:", error);
     // Return empty habits array on error rather than throwing
-    return json({ habits: [] });
+    return json({ habits: [], isAuthenticated: false });
   }
 }
 
@@ -164,16 +164,16 @@ export async function action(args: ActionFunctionArgs) {
 }
 
 export default function Home() {
-  const { habits: serverHabits } = useLoaderData<typeof loader>();
+  const { habits: serverHabits, isAuthenticated } =
+    useLoaderData<typeof loader>();
   const { user } = useUser();
-  const { isSignedIn } = useOptimisticAuth();
-  const { habits, isFromCache, hasData } = useOptimisticHabits(
-    serverHabits,
-    user?.id,
-  );
+  const { isSignedIn, isLoaded } = useOptimisticAuth();
+  const { habits, isFromCache } = useOptimisticHabits(serverHabits, user?.id);
 
-  // Show sign-in prompt only when we are certain user is signed out
-  if (!isSignedIn) {
+  // Determine auth state: use loader's value initially, then Clerk's once loaded
+  const showSignInPrompt = isLoaded ? !isSignedIn : !isAuthenticated;
+
+  if (showSignInPrompt) {
     return (
       <div className="text-center">
         Pal, please authenticate above to change your life

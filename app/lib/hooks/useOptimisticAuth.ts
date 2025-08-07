@@ -1,57 +1,20 @@
-import { useEffect, useState } from "react";
 import { useUser } from "@clerk/react-router";
-import { useAuthState, useAuthStore } from "../stores/authStore";
-
-interface OptimisticAuthState {
-  isSignedIn: boolean | null; // null = unknown, true = signed in, false = signed out
-  user: any;
-  isLoaded: boolean;
-}
 
 /**
- * Hook that provides optimistic authentication state
- * Shows cached auth state immediately while Clerk loads in background
+ * A simple wrapper around Clerk's useUser hook.
+ *
+ * This hook provides the user's authentication status (`isSignedIn`),
+ * the user object itself, and a boolean (`isLoaded`) to indicate
+ * when the authentication state has been determined.
+ *
+ * By using this hook, we can ensure that our components have a
+ * consistent way to access authentication state throughout the app.
  */
-
-export function useOptimisticAuth(): OptimisticAuthState {
+export function useOptimisticAuth() {
   const { isSignedIn, user, isLoaded } = useUser();
-  const wasPreviouslyLogged = useAuthState();
-  const setWasPreviouslyLogged = useAuthStore(
-    (state) => state.setWasPreviouslyLogged,
-  );
-
-  // Check localStorage for previous auth state on mount
-  useEffect(() => {
-    const cachedAuthState = localStorage.getItem("clerk-auth-cache");
-    if (cachedAuthState) {
-      try {
-        const parsed = JSON.parse(cachedAuthState);
-        setWasPreviouslyLogged(parsed.wasSignedIn === true);
-      } catch {
-        // Ignore parsing errors
-        setWasPreviouslyLogged(false);
-      }
-    } else {
-      setWasPreviouslyLogged(false);
-    }
-  }, [setWasPreviouslyLogged]);
-
-  // Cache auth state when it changes
-  useEffect(() => {
-    if (isLoaded && isSignedIn !== undefined && isSignedIn) {
-      localStorage.setItem(
-        "clerk-auth-cache",
-        JSON.stringify({
-          wasSignedIn: true,
-          timestamp: Date.now(),
-        }),
-      );
-      setWasPreviouslyLogged(true);
-    }
-  }, [isLoaded, isSignedIn, setWasPreviouslyLogged]);
 
   return {
-    isSignedIn: isLoaded ? isSignedIn : wasPreviouslyLogged,
+    isSignedIn,
     user,
     isLoaded,
   };
