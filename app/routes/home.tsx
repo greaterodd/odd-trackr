@@ -5,7 +5,6 @@ import {
   useLoaderData,
 } from "react-router";
 import type { Route } from "./+types/home";
-import type { Habit } from "../lib/stores/habitStore";
 import { useUser } from "@clerk/react-router";
 import { getAuth } from "@clerk/react-router/ssr.server";
 import HabitTracker from "../components/HabitTracker";
