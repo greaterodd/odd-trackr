@@ -1,12 +1,3 @@
-/* eslint-disable */
-/* tslint:disable */
-
-/**
- * Mock Service Worker.
- * @see https://github.com/mswjs/msw
- * - Please do NOT modify this file.
- */
-
 const PACKAGE_VERSION = "2.9.0";
 const INTEGRITY_CHECKSUM = "f5825c521429caf22a4dd13b66e243af";
 const IS_MOCKED_RESPONSE = Symbol("isMockedResponse");
@@ -164,11 +155,7 @@ async function handleRequest(event, requestId) {
 }
 
 /**
- * Resolve the main client for the given event.
- * Client that issues a request doesn't necessarily equal the client
- * that registered the worker. It's with the latter the worker should
- * communicate with during the response resolving phase.
- * @param {FetchEvent} event
+	@@ -172,30 +172,30 @@ async function handleRequest(event, requestId) {
  * @returns {Promise<Client | undefined>}
  */
 async function resolveMainClient(event) {
@@ -199,9 +186,7 @@ async function resolveMainClient(event) {
 }
 
 /**
- * @param {FetchEvent} event
- * @param {Client | undefined} client
- * @param {string} requestId
+	@@ -205,73 +205,73 @@ async function resolveMainClient(event) {
  * @returns {Promise<Response>}
  */
 async function getResponse(event, client, requestId) {
@@ -275,9 +260,7 @@ async function getResponse(event, client, requestId) {
 }
 
 /**
- * @param {Client} client
- * @param {any} message
- * @param {Array<Transferable>} transferrables
+	@@ -281,64 +281,64 @@ async function getResponse(event, client, requestId) {
  * @returns {Promise<any>}
  */
 function sendToClient(client, message, transferrables = []) {

@@ -34,8 +34,10 @@ export default function HabitTracker({
     Date | undefined
   >();
 
-  const handleDateChange = (date: Date) => {
-    setSelectedDate(date);
+  const handleDateChange = (date: Date | undefined) => {
+    if (date) {
+      setSelectedDate(date);
+    }
   };
 
   return (
