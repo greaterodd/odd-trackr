@@ -14,12 +14,14 @@ import {
 	SignedOut,
 	UserButton,
 } from "@clerk/react-router";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 import type { Route } from "./+types/root";
 import { Toaster } from "./components/ui/sonner";
 import "./app.css";
 
 const PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
+const queryClient = new QueryClient();
 
 export const links: Route.LinksFunction = () => [
 	{ rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -60,17 +62,19 @@ export function Layout({ children }: { children: React.ReactNode }) {
 export default function App({ loaderData }: Route.ComponentProps) {
 	return (
 		<ClerkProvider loaderData={loaderData} publishableKey={PUBLISHABLE_KEY}>
-			<header className="flex items-center justify-center py-8 px-4">
-				<SignedOut>
-					<NavLink to="/sign-in">Sign in</NavLink>
-				</SignedOut>
-				<SignedIn>
-					<UserButton />
-				</SignedIn>
-			</header>
-			<main>
-				<Outlet />
-			</main>
+			<QueryClientProvider client={queryClient}>
+				<header className="flex items-center justify-center py-8 px-4 min-h-24">
+					<SignedOut>
+						<NavLink to="/sign-in">Sign in</NavLink>
+					</SignedOut>
+					<SignedIn>
+						<UserButton />
+					</SignedIn>
+				</header>
+				<main>
+					<Outlet />
+				</main>
+			</QueryClientProvider>
 		</ClerkProvider>
 	);
 }

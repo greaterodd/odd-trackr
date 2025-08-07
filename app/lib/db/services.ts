@@ -21,11 +21,8 @@ export const userService = {
 		return user;
 	},
 
-	async getUserByGoogleId(googleId: string) {
-		const [user] = await db
-			.select()
-			.from(users)
-			.where(eq(users.googleId, googleId));
+	async getUserById(userId: string) {
+		const [user] = await db.select().from(users).where(eq(users.id, userId));
 		return user;
 	},
 
@@ -124,6 +121,18 @@ export const habitCompletionService = {
 			.from(habitCompletions)
 			.innerJoin(habits, eq(habits.id, habitCompletions.habitId))
 			.where(and(eq(habits.userId, userId), eq(habitCompletions.date, date)));
+	},
+
+	async getAllUserCompletions(userId: string) {
+		return await db
+			.select({
+				habitId: habitCompletions.habitId,
+				date: habitCompletions.date,
+				completed: habitCompletions.completed,
+			})
+			.from(habitCompletions)
+			.innerJoin(habits, eq(habits.id, habitCompletions.habitId))
+			.where(eq(habits.userId, userId));
 	},
 
 	async deleteCompletion(habitId: string, date: string) {
