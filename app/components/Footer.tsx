@@ -6,14 +6,9 @@ import { DatePicker } from "./DatePicker"; // ¡Importamos nuestro nuevo compone
 interface FooterProps {
   selectedDate: Date;
   onDateChange: (date: Date | undefined) => void; // Actualizamos el tipo aquí
-  earliestHabitDate?: Date;
 }
 
-const Footer = ({
-  selectedDate,
-  onDateChange,
-  earliestHabitDate,
-}: FooterProps) => {
+const Footer = ({ selectedDate, onDateChange }: FooterProps) => {
   const today = new Date();
   const isToday = selectedDate.toDateString() === today.toDateString();
   const [isAnimating, setIsAnimating] = useState(false);
@@ -44,7 +39,6 @@ const Footer = ({
     onDateChange(new Date());
   };
 
-  const canGoPrevious = !earliestHabitDate || selectedDate > earliestHabitDate;
   const canGoNext = selectedDate < today;
 
   return (
@@ -54,7 +48,6 @@ const Footer = ({
           variant="outline"
           size="sm"
           onClick={goToPreviousDay}
-          disabled={!canGoPrevious}
           className="flex items-center gap-2"
         >
           <ChevronLeft className="w-4 h-4" />

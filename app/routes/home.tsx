@@ -1,8 +1,8 @@
 import {
-	type ActionFunctionArgs,
-	isRouteErrorResponse,
-	type LoaderFunctionArgs,
-	useLoaderData,
+  type ActionFunctionArgs,
+  isRouteErrorResponse,
+  type LoaderFunctionArgs,
+  useLoaderData,
 } from "react-router";
 import type { Route } from "./+types/home";
 import type { Habit } from "../lib/stores/habitStore";
@@ -20,203 +20,195 @@ type ActionIntent = "createHabit" | "toggleCompletion" | "deleteHabit";
 
 // Helper function for JSON responses
 function json<T>(data: T, init?: ResponseInit): Response {
-	return new Response(JSON.stringify(data), {
-		...init,
-		headers: {
-			"Content-Type": "application/json",
-			...init?.headers,
-		},
-	});
+  return new Response(JSON.stringify(data), {
+    ...init,
+    headers: {
+      "Content-Type": "application/json",
+      ...init?.headers,
+    },
+  });
 }
 
 export function meta({ data }: Route.MetaArgs) {
-	return [
-		{ title: "Trackr | Be one percent better every day" },
-		{ name: "description", content: "Welcome to your next project!" },
-	];
+  return [
+    { title: "Trackr | Be one percent better every day" },
+    { name: "description", content: "Welcome to your next project!" },
+  ];
 }
 
 export async function loader(args: LoaderFunctionArgs) {
-	const { userId } = await getAuth(args);
-	if (!userId) {
-		return json({ habits: [] });
-	}
+  const { userId } = await getAuth(args);
+  if (!userId) {
+    return json({ habits: [] });
+  }
 
-	try {
-		// Ensure user exists in our database
-		await ensureUserExists(userId);
+  try {
+    // Ensure user exists in our database
+    await ensureUserExists(userId);
 
-		// Load user's habits
-		const dbHabits = await habitService.getUserHabits(userId);
+    // Load user's habits
+    const dbHabits = await habitService.getUserHabits(userId);
 
-		// Get today's date in YYYY-MM-DD format
-		const today = new Date().toISOString().split("T")[0];
+    // Get today's date in YYYY-MM-DD format
+    const today = new Date().toISOString().split("T")[0];
 
-		// Get ALL completions for user in one query (instead of N queries)
-		const allCompletions =
-			await habitCompletionService.getAllUserCompletions(userId);
+    // Get ALL completions for user in one query (instead of N queries)
+    const allCompletions =
+      await habitCompletionService.getAllUserCompletions(userId);
 
-		// Group completions by habitId for efficient lookup
-		const completionsByHabit: Record<string, Record<string, boolean>> = {};
-		for (const completion of allCompletions) {
-			if (!completionsByHabit[completion.habitId]) {
-				completionsByHabit[completion.habitId] = {};
-			}
-			completionsByHabit[completion.habitId][completion.date] =
-				completion.completed;
-		}
+    // Group completions by habitId for efficient lookup
+    const completionsByHabit: Record<string, Record<string, boolean>> = {};
+    for (const completion of allCompletions) {
+      if (!completionsByHabit[completion.habitId]) {
+        completionsByHabit[completion.habitId] = {};
+      }
+      completionsByHabit[completion.habitId][completion.date] =
+        completion.completed;
+    }
 
-		// Transform database habits to match UI interface
-		const habits = dbHabits.map((habit) => {
-			const completionsMap = completionsByHabit[habit.id] || {};
+    // Transform database habits to match UI interface
+    const habits = dbHabits.map((habit) => {
+      const completionsMap = completionsByHabit[habit.id] || {};
 
-			return {
-				...habit,
-				startDate: new Date(habit.startDate), // Convert timestamp to Date
-				completions: completionsMap,
-				completed: completionsMap[today] || false, // Set today's completion status
-			};
-		});
+      return {
+        ...habit,
+        startDate: new Date(habit.startDate), // Convert timestamp to Date
+        completions: completionsMap,
+        completed: completionsMap[today] || false, // Set today's completion status
+      };
+    });
 
-		return json({ habits });
-	} catch (error) {
-		console.error("Error loading habits:", error);
-		// Return empty habits array on error rather than throwing
-		return json({ habits: [] });
-	}
+    return json({ habits });
+  } catch (error) {
+    console.error("Error loading habits:", error);
+    // Return empty habits array on error rather than throwing
+    return json({ habits: [] });
+  }
 }
 
 // Action handlers map - much cleaner than switch statements
 const actionHandlers = {
-	async createHabit(formData: FormData, userId: string) {
-		const title = formData.get("title") as string;
-		const description = (formData.get("description") as string) || undefined;
-		const isGood = formData.get("isGood") as string;
-		const startDate = formData.get("startDate") as string;
+  async createHabit(formData: FormData, userId: string) {
+    const title = formData.get("title") as string;
+    const description = (formData.get("description") as string) || undefined;
+    const isGood = formData.get("isGood") as string;
+    const startDate = formData.get("startDate") as string;
 
-		const newHabit = await habitService.createHabit({
-			id: randomUUID(),
-			userId,
-			title,
-			description,
-			isGood: isGood === "true",
-			startDate: startDate ? new Date(startDate) : new Date(),
-		});
+    const newHabit = await habitService.createHabit({
+      id: randomUUID(),
+      userId,
+      title,
+      description,
+      isGood: isGood === "true",
+      startDate: startDate ? new Date(startDate) : new Date(),
+    });
 
-		// Transform the new habit to match UI interface
-		return {
-			...newHabit,
-			startDate: new Date(newHabit.startDate),
-			completions: {},
-			completed: false,
-		};
-	},
+    // Transform the new habit to match UI interface
+    return {
+      ...newHabit,
+      startDate: new Date(newHabit.startDate),
+      completions: {},
+      completed: false,
+    };
+  },
 
-	async toggleCompletion(formData: FormData, userId: string) {
-		const habitId = formData.get("habitId") as string;
-		const date = formData.get("date") as string;
-		const completed = formData.get("completed") as string;
+  async toggleCompletion(formData: FormData, userId: string) {
+    const habitId = formData.get("habitId") as string;
+    const date = formData.get("date") as string;
+    const completed = formData.get("completed") as string;
 
-		return await habitCompletionService.setCompletion({
-			id: randomUUID(),
-			habitId,
-			date,
-			completed: completed === "true",
-		});
-	},
+    return await habitCompletionService.setCompletion({
+      id: randomUUID(),
+      habitId,
+      date,
+      completed: completed === "true",
+    });
+  },
 
-	async deleteHabit(formData: FormData, userId: string) {
-		const habitId = formData.get("habitId") as string;
-		await habitService.deleteHabit(habitId);
-		return { success: true, deletedId: habitId };
-	},
+  async deleteHabit(formData: FormData, userId: string) {
+    const habitId = formData.get("habitId") as string;
+    await habitService.deleteHabit(habitId);
+    return { success: true, deletedId: habitId };
+  },
 };
 
 export async function action(args: ActionFunctionArgs) {
-	const { userId } = await getAuth(args);
-	if (!userId) {
-		return json({ error: "Unauthorized" }, { status: 401 });
-	}
+  const { userId } = await getAuth(args);
+  if (!userId) {
+    return json({ error: "Unauthorized" }, { status: 401 });
+  }
 
-	try {
-		const formData = await args.request.formData();
-		const intent = formData.get("intent") as string;
+  try {
+    const formData = await args.request.formData();
+    const intent = formData.get("intent") as string;
 
-		const handler = actionHandlers[intent as keyof typeof actionHandlers];
-		if (!handler) {
-			return json({ error: "Invalid intent" }, { status: 400 });
-		}
+    const handler = actionHandlers[intent as keyof typeof actionHandlers];
+    if (!handler) {
+      return json({ error: "Invalid intent" }, { status: 400 });
+    }
 
-		const result = await handler(formData, userId);
-		return json(result);
-	} catch (error) {
-		console.error("Action error:", error);
-		return json(
-			{
-				error:
-					error instanceof Error
-						? error.message
-						: "An unexpected error occurred",
-			},
-			{ status: 500 },
-		);
-	}
+    const result = await handler(formData, userId);
+    return json(result);
+  } catch (error) {
+    console.error("Action error:", error);
+    return json(
+      {
+        error:
+          error instanceof Error
+            ? error.message
+            : "An unexpected error occurred",
+      },
+      { status: 500 },
+    );
+  }
 }
 
 export default function Home() {
-	const { habits: serverHabits } = useLoaderData<typeof loader>();
-	const { user } = useUser();
-	const { isSignedIn, isLoaded } = useOptimisticAuth();
-	const { habits, isFromCache, hasData } = useOptimisticHabits(
-		serverHabits,
-		user?.id,
-	);
+  const { habits: serverHabits } = useLoaderData<typeof loader>();
+  const { user } = useUser();
+  const { isSignedIn } = useOptimisticAuth();
+  const { habits, isFromCache, hasData } = useOptimisticHabits(
+    serverHabits,
+    user?.id,
+  );
 
-	// Show sign-in prompt only when we are certain user is signed out
-	if (isLoaded && !isSignedIn) {
-		return (
-			<div className="text-center">
-				Pal, please authenticate above to change your life
-			</div>
-		);
-	}
+  // Show sign-in prompt only when we are certain user is signed out
+  if (!isSignedIn) {
+    return (
+      <div className="text-center">
+        Pal, please authenticate above to change your life
+      </div>
+    );
+  }
 
-	// Show app immediately with cached data or empty state
-	// The HabitTracker will handle loading states internally
-	return (
-		<HabitTracker
-			initialHabits={habits}
-			isFromCache={isFromCache}
-			isOptimistic={isSignedIn !== false && hasData}
-		/>
-	);
+  return <HabitTracker initialHabits={habits} isFromCache={isFromCache} />;
 }
 
 export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
-	let message = "Oops!";
-	let details = "An unexpected error occurred.";
-	let stack: string | undefined;
+  let message = "Oops!";
+  let details = "An unexpected error occurred.";
+  let stack: string | undefined;
 
-	if (isRouteErrorResponse(error)) {
-		message = error.status === 404 ? "404" : "Error";
-		details =
-			error.status === 404
-				? "The requested page could not be found."
-				: error.statusText || details;
-	} else if (import.meta.env.DEV && error && error instanceof Error) {
-		details = error.message;
-		stack = error.stack;
-	}
+  if (isRouteErrorResponse(error)) {
+    message = error.status === 404 ? "404" : "Error";
+    details =
+      error.status === 404
+        ? "The requested page could not be found."
+        : error.statusText || details;
+  } else if (import.meta.env.DEV && error && error instanceof Error) {
+    details = error.message;
+    stack = error.stack;
+  }
 
-	return (
-		<main className="pt-16 p-4 container mx-auto">
-			<h1>{message}</h1>
-			<p>{details}</p>
-			{stack && (
-				<pre className="w-full p-4 overflow-x-auto">
-					<code>{stack}</code>
-				</pre>
-			)}
-		</main>
-	);
+  return (
+    <main className="pt-16 p-4 container mx-auto">
+      <h1>{message}</h1>
+      <p>{details}</p>
+      {stack && (
+        <pre className="w-full p-4 overflow-x-auto">
+          <code>{stack}</code>
+        </pre>
+      )}
+    </main>
+  );
 }
