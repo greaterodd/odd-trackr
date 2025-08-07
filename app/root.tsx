@@ -60,6 +60,10 @@ export function Layout({ children }: { children: React.ReactNode }) {
 }
 
 export default function App({ loaderData }: Route.ComponentProps) {
+	const handleSignOut = () => {
+		localStorage.removeItem("clerk-auth-cache");
+	};
+
 	return (
 		<ClerkProvider loaderData={loaderData} publishableKey={PUBLISHABLE_KEY}>
 			<QueryClientProvider client={queryClient}>
@@ -68,7 +72,7 @@ export default function App({ loaderData }: Route.ComponentProps) {
 						<NavLink to="/sign-in">Sign in</NavLink>
 					</SignedOut>
 					<SignedIn>
-						<UserButton />
+						<UserButton afterSignOutUrl="/" signOutCallback={handleSignOut} />
 					</SignedIn>
 				</header>
 				<main>

@@ -53,21 +53,23 @@ export async function loader(args: LoaderFunctionArgs) {
 		const today = new Date().toISOString().split("T")[0];
 
 		// Get ALL completions for user in one query (instead of N queries)
-		const allCompletions = await habitCompletionService.getAllUserCompletions(userId);
-		
+		const allCompletions =
+			await habitCompletionService.getAllUserCompletions(userId);
+
 		// Group completions by habitId for efficient lookup
 		const completionsByHabit: Record<string, Record<string, boolean>> = {};
 		for (const completion of allCompletions) {
 			if (!completionsByHabit[completion.habitId]) {
 				completionsByHabit[completion.habitId] = {};
 			}
-			completionsByHabit[completion.habitId][completion.date] = completion.completed;
+			completionsByHabit[completion.habitId][completion.date] =
+				completion.completed;
 		}
 
 		// Transform database habits to match UI interface
 		const habits = dbHabits.map((habit) => {
 			const completionsMap = completionsByHabit[habit.id] || {};
-			
+
 			return {
 				...habit,
 				startDate: new Date(habit.startDate), // Convert timestamp to Date
@@ -164,15 +166,14 @@ export async function action(args: ActionFunctionArgs) {
 export default function Home() {
 	const { habits: serverHabits } = useLoaderData<typeof loader>();
 	const { user } = useUser();
-	const { isSignedIn, wasSignedInBefore } = useOptimisticAuth();
+	const { isSignedIn, isLoaded } = useOptimisticAuth();
 	const { habits, isFromCache, hasData } = useOptimisticHabits(
-		serverHabits, 
-		user?.id
+		serverHabits,
+		user?.id,
 	);
 
-	// Show sign-in prompt only if we're certain user is not signed in
-	// and they weren't signed in before (no cached auth state)
-	if (isSignedIn === false && !wasSignedInBefore) {
+	// Show sign-in prompt only when we are certain user is signed out
+	if (isLoaded && !isSignedIn) {
 		return (
 			<div className="text-center">
 				Pal, please authenticate above to change your life
@@ -183,8 +184,8 @@ export default function Home() {
 	// Show app immediately with cached data or empty state
 	// The HabitTracker will handle loading states internally
 	return (
-		<HabitTracker 
-			initialHabits={habits} 
+		<HabitTracker
+			initialHabits={habits}
 			isFromCache={isFromCache}
 			isOptimistic={isSignedIn !== false && hasData}
 		/>
