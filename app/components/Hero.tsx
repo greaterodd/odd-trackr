@@ -14,213 +14,213 @@ import { Input } from "./ui/Input";
 import type { Habit as HabitType } from "~/lib/types";
 import { Textarea } from "./ui/Textarea";
 import {
-	Dialog,
-	DialogContent,
-	DialogHeader,
-	DialogTitle,
-	DialogTrigger,
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
 } from "./ui/dialog";
 import { Link } from "react-router";
 
 // Form validation schema
 const habitSchema = z.object({
-	title: z
-		.string()
-		.min(1, "Habit title is required")
-		.min(3, "Habit title must be at least 3 characters")
-		.max(100, "Habit title must be less than 100 characters"),
-	description: z
-		.string()
-		.max(320, "Description must be less than 500 characters")
-		.optional(),
-	isGood: z.boolean(),
+  title: z
+    .string()
+    .min(1, "Habit title is required")
+    .min(3, "Habit title must be at least 3 characters")
+    .max(100, "Habit title must be less than 100 characters"),
+  description: z
+    .string()
+    .max(320, "Description must be less than 500 characters")
+    .optional(),
+  isGood: z.boolean(),
 });
 
 type HabitFormData = z.infer<typeof habitSchema>;
 
 interface HeroProps {
-	selectedDate: Date;
-	onDateChange: (date: Date) => void;
+  selectedDate: Date;
+  onDateChange: (date: Date) => void;
 }
 
 const Hero = ({ selectedDate }: HeroProps) => {
-	const { habits, addHabit } = useHabitStore();
-	const fetcher = useFetcher();
-	const [isGood, setIsGood] = useState(true);
+  const { habits, addHabit } = useHabitStore();
+  const fetcher = useFetcher();
+  const [isGood, setIsGood] = useState(true);
 
-	// Handle fetcher responses
-	useEffect(() => {
-		if (fetcher.state === "idle" && fetcher.data) {
-			if (fetcher.data.error) {
-				// Handle errors - could revert optimistic updates here if needed
-				toast.error("Something went wrong. Please try again.");
-				return;
-			}
+  // Handle fetcher responses
+  useEffect(() => {
+    if (fetcher.state === "idle" && fetcher.data) {
+      if (fetcher.data.error) {
+        // Handle errors - could revert optimistic updates here if needed
+        toast.error("Something went wrong. Please try again.");
+        return;
+      }
 
-			// Handle successful createHabit response
-			if (fetcher.data.id && fetcher.data.title) {
-				// Replace the optimistic habit with the real one from the server
-				const { deleteHabit, habits: currentHabits } = useHabitStore.getState();
+      // Handle successful createHabit response
+      if (fetcher.data.id && fetcher.data.title) {
+        // Replace the optimistic habit with the real one from the server
+        const { deleteHabit, habits: currentHabits } = useHabitStore.getState();
 
-				// Find and remove the optimistic habit
-				const optimisticHabit = currentHabits.find(
-					(h) => h.isOptimistic && h.title === fetcher.data.title,
-				);
-				if (optimisticHabit) {
-					deleteHabit(optimisticHabit.id);
-				}
+        // Find and remove the optimistic habit
+        const optimisticHabit = currentHabits.find(
+          (h) => h.isOptimistic && h.title === fetcher.data.title
+        );
+        if (optimisticHabit) {
+          deleteHabit(optimisticHabit.id);
+        }
 
-				// Add the real habit from server
-				const habitWithProperDate = {
-					...fetcher.data,
-					startDate: new Date(fetcher.data.startDate),
-				};
-				addHabit(habitWithProperDate);
-			}
+        // Add the real habit from server
+        const habitWithProperDate = {
+          ...fetcher.data,
+          startDate: new Date(fetcher.data.startDate),
+        };
+        addHabit(habitWithProperDate);
+      }
 
-			// Handle successful deleteHabit response
-			if (fetcher.data.success && fetcher.data.deletedId) {
-				// Delete was successful on server, optimistic update was correct
-			}
+      // Handle successful deleteHabit response
+      if (fetcher.data.success && fetcher.data.deletedId) {
+        // Delete was successful on server, optimistic update was correct
+      }
 
-			// Handle successful toggleHabitCompletion response
-			if (fetcher.data.habitId && fetcher.data.date !== undefined) {
-				// Completion toggle was successful on server, optimistic update was correct
-			}
-		}
-	}, [fetcher.data, fetcher.state, addHabit]);
+      // Handle successful toggleHabitCompletion response
+      if (fetcher.data.habitId && fetcher.data.date !== undefined) {
+        // Completion toggle was successful on server, optimistic update was correct
+      }
+    }
+  }, [fetcher.data, fetcher.state, addHabit]);
 
-	useHotKey(
-		"Backspace",
-		() => {
-			setIsGood((prev) => {
-				const newIsGood = !prev;
-				toast.success(`Habit type changed to ${newIsGood ? "Good" : "Bad"}`);
-				return newIsGood;
-			});
-		},
-		{ shiftKey: true },
-	);
+  useHotKey(
+    "Backspace",
+    () => {
+      setIsGood((prev) => {
+        const newIsGood = !prev;
+        toast.success(`Habit type changed to ${newIsGood ? "Good" : "Bad"}`);
+        return newIsGood;
+      });
+    },
+    { shiftKey: true }
+  );
 
-	const {
-		register,
-		handleSubmit,
-		formState: { errors, isSubmitting },
-		reset,
-	} = useForm<HabitFormData>({
-		resolver: zodResolver(habitSchema),
-		defaultValues: {
-			isGood: true,
-		},
-	});
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+    reset,
+  } = useForm<HabitFormData>({
+    resolver: zodResolver(habitSchema),
+    defaultValues: {
+      isGood: true,
+    },
+  });
 
-	const onSubmit = (data: HabitFormData) => {
-		// Optimistically add the habit immediately
-		const optimisticHabit = {
-			id: `temp-${Date.now()}`, // Temporary ID
-			userId: "current-user", // Will be replaced by server
-			title: data.title,
-			description: data.description || "",
-			isGood: isGood,
-			startDate: new Date(selectedDate), // Use selectedDate instead of today
-			completions: {},
-			completed: false,
-			createdAt: new Date(),
-			updatedAt: new Date(),
-			isOptimistic: true, // Flag to identify optimistic updates
-		};
+  const onSubmit = (data: HabitFormData) => {
+    // Optimistically add the habit immediately
+    const optimisticHabit = {
+      id: `temp-${Date.now()}`, // Temporary ID
+      userId: "current-user", // Will be replaced by server
+      title: data.title,
+      description: data.description || "",
+      isGood: isGood,
+      startDate: new Date(selectedDate), // Use selectedDate instead of today
+      completions: {},
+      completed: false,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      isOptimistic: true, // Flag to identify optimistic updates
+    };
 
-		addHabit(optimisticHabit);
-		toast.success("Habit added!");
+    addHabit(optimisticHabit);
+    toast.success("Habit added!");
 
-		const formData = new FormData();
-		formData.append("intent", "createHabit");
-		formData.append("title", data.title);
-		if (data.description) {
-			formData.append("description", data.description);
-		}
-		formData.append("isGood", String(isGood));
-		formData.append("startDate", String(optimisticHabit.startDate));
-		fetcher.submit(formData, { method: "post" });
-		reset();
-	};
+    const formData = new FormData();
+    formData.append("intent", "createHabit");
+    formData.append("title", data.title);
+    if (data.description) {
+      formData.append("description", data.description);
+    }
+    formData.append("isGood", String(isGood));
+    formData.append("startDate", String(optimisticHabit.startDate));
+    fetcher.submit(formData, { method: "post" });
+    reset();
+  };
 
-	const toggleHabitCompletion = (habitId: string, date: Date) => {
-		const { habits: currentHabits, updateHabit } = useHabitStore.getState();
-		const habit = currentHabits.find((h) => h.id === habitId);
+  const toggleHabitCompletion = (habitId: string, date: Date) => {
+    const { habits: currentHabits, updateHabit } = useHabitStore.getState();
+    const habit = currentHabits.find((h) => h.id === habitId);
 
-		if (habit) {
-			const dateKey = formatDateKey(date);
-			const currentCompletion = habit.completions?.[dateKey] || false;
-			const newCompletion = !currentCompletion;
+    if (habit) {
+      const dateKey = formatDateKey(date);
+      const currentCompletion = habit.completions?.[dateKey] || false;
+      const newCompletion = !currentCompletion;
 
-			// Optimistically update the store immediately
-			updateHabit(habitId, {
-				completions: { ...habit.completions, [dateKey]: newCompletion },
-				completed: newCompletion,
-			});
+      // Optimistically update the store immediately
+      updateHabit(habitId, {
+        completions: { ...habit.completions, [dateKey]: newCompletion },
+        completed: newCompletion,
+      });
 
-			// Show immediate feedback
-			toast.success(
-				newCompletion ? "Marked as completed!" : "Marked as incomplete!",
-			);
+      // Show immediate feedback
+      toast.success(
+        newCompletion ? "Marked as completed!" : "Marked as incomplete!"
+      );
 
-			// Send to server in background
-			fetcher.submit(
-				{
-					intent: "toggleCompletion",
-					habitId,
-					date: dateKey,
-					completed: String(newCompletion),
-				},
-				{ method: "post" },
-			);
-		}
-	};
+      // Send to server in background
+      fetcher.submit(
+        {
+          intent: "toggleCompletion",
+          habitId,
+          date: dateKey,
+          completed: String(newCompletion),
+        },
+        { method: "post" }
+      );
+    }
+  };
 
-	const deleteHabit = (habitId: string) => {
-		// Optimistically remove the habit immediately
-		const { deleteHabit: removeHabit } = useHabitStore.getState();
-		removeHabit(habitId);
-		toast.success("Habit deleted!");
+  const deleteHabit = (habitId: string) => {
+    // Optimistically remove the habit immediately
+    const { deleteHabit: removeHabit } = useHabitStore.getState();
+    removeHabit(habitId);
+    toast.success("Habit deleted!");
 
-		// Send delete request to server
-		fetcher.submit(
-			{
-				intent: "deleteHabit",
-				habitId,
-			},
-			{ method: "post" },
-		);
-	};
+    // Send delete request to server
+    fetcher.submit(
+      {
+        intent: "deleteHabit",
+        habitId,
+      },
+      { method: "post" }
+    );
+  };
 
-	// Filter habits to show only those that started on or before the selected date
-	const visibleHabits = habits.filter((habit) => {
-		// Compare dates by converting both to date strings (YYYY-MM-DD) to avoid time issues
-		const habitStartDate = new Date(habit.startDate);
-		const selectedDateOnly = new Date(selectedDate);
+  // Filter habits to show only those that started on or before the selected date
+  const visibleHabits = habits.filter((habit) => {
+    // Compare dates by converting both to date strings (YYYY-MM-DD) to avoid time issues
+    const habitStartDate = new Date(habit.startDate);
+    const selectedDateOnly = new Date(selectedDate);
 
-		// Set both dates to start of day for fair comparison
-		habitStartDate.setHours(0, 0, 0, 0);
-		selectedDateOnly.setHours(0, 0, 0, 0);
+    // Set both dates to start of day for fair comparison
+    habitStartDate.setHours(0, 0, 0, 0);
+    selectedDateOnly.setHours(0, 0, 0, 0);
 
-		return habitStartDate <= selectedDateOnly;
-	});
+    return habitStartDate <= selectedDateOnly;
+  });
 
-	// Update habits with completion status for the selected date
-	const habitsForSelectedDate = visibleHabits.map((habit) => {
-		const dateKey = formatDateKey(selectedDate);
-		const completedForDate = habit.completions?.[dateKey] || false;
-		return {
-			...habit,
-			completed: completedForDate,
-		};
-	});
+  // Update habits with completion status for the selected date
+  const habitsForSelectedDate = visibleHabits.map((habit) => {
+    const dateKey = formatDateKey(selectedDate);
+    const completedForDate = habit.completions?.[dateKey] || false;
+    return {
+      ...habit,
+      completed: completedForDate,
+    };
+  });
 
-	// Count habits that are not completed for the selected date
-	const incompleteHabitsCount = habitsForSelectedDate.filter(
-		(habit) => !habit.completed,
-	).length;
+  // Count habits that are not completed for the selected date
+  const incompleteHabitsCount = habitsForSelectedDate.filter(
+    (habit) => !habit.completed
+  ).length;
 
 	return (
 		<>
@@ -322,7 +322,7 @@ const Hero = ({ selectedDate }: HeroProps) => {
 									)}
 								</div>
 							</DialogTrigger>
-							<DialogContent>
+							<DialogContent className="max-h-[80vh] overflow-y-auto [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-gray-300 [&::-webkit-scrollbar-thumb]:rounded-full">
 								<DialogHeader>
 									<DialogTitle>Your Habits</DialogTitle>
 								</DialogHeader>
