@@ -273,12 +273,12 @@ const Hero = ({ selectedDate }: HeroProps) => {
 							>
 								{isSubmitting ? "Adding..." : "Add Habit"}
 							</Button>
-							<div className="flex items-center justify-center gap-1 bg-gray-100 dark:bg-gray-800 p-1 rounded-lg h-16">
+							<div className="flex items-center justify-center bg-gray-100 dark:bg-gray-800 p-1 rounded-lg h-16">
 								<Button
 									type="button"
 									onClick={() => setIsGood(true)}
 									className={cn(
-										"px-4 md:text-base lg:text-lg transition-colors",
+										"px-4 py-6 rounded-r-none md:text-base lg:text-lg transition-colors",
 										isGood
 											? "bg-green-500 hover:bg-green-600 text-white"
 											: "bg-transparent hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-800 dark:text-gray-200",
@@ -290,7 +290,7 @@ const Hero = ({ selectedDate }: HeroProps) => {
 									type="button"
 									onClick={() => setIsGood(false)}
 									className={cn(
-										"px-4 md:text-base lg:text-lg transition-colors",
+										"px-4 py-6 rounded-l-none md:text-base lg:text-lg transition-colors",
 										!isGood
 											? "bg-red-500 hover:bg-red-600 text-white"
 											: "bg-transparent hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-800 dark:text-gray-200",
