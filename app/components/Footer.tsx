@@ -42,13 +42,13 @@ const Footer = ({ selectedDate, onDateChange }: FooterProps) => {
   const canGoNext = selectedDate < today;
 
   return (
-    <footer className="fixed bottom-0 left-0 right-0 bg-gray-50 dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 p-4">
-      <div className="max-w-2xl mx-auto flex items-center justify-between min-h-12">
+    <footer className="fixed bottom-0 left-0 right-0 bg-gray-50 dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 p-4 lg:p-6">
+      <div className="max-w-2xl mx-auto flex items-center justify-between min-h-14">
         <Button
           variant="outline"
           size="sm"
           onClick={goToPreviousDay}
-          className="flex items-center gap-2"
+          className="flex items-center gap-2 sm:py-2 sm:px-0.5 sm:text-xs lg:py-4 lg:px-2 lg:text-base"
         >
           <ChevronLeft className="w-4 h-4" />
           Previous Day
@@ -62,7 +62,7 @@ const Footer = ({ selectedDate, onDateChange }: FooterProps) => {
               variant="ghost"
               size="sm"
               onClick={goToToday}
-              className="h-auto p-0 text-xs text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-200"
+              className="h-auto text-xs lg:text-base text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-200"
             >
               Go to Today
             </Button>
@@ -72,7 +72,7 @@ const Footer = ({ selectedDate, onDateChange }: FooterProps) => {
           variant="outline"
           size="sm"
           onClick={goToNextDay}
-          className="flex items-center gap-2"
+          className="flex items-center gap-2 sm:py-0 sm:px-0.5 sm:text-xs lg:py-4 lg:px-2 lg:text-base"
         >
           Next Day
           <ChevronRight className="w-4 h-4" />

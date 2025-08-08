@@ -224,7 +224,7 @@ const Hero = ({ selectedDate }: HeroProps) => {
 
 	return (
 		<>
-			<div className="flex items-center py-12 md:py-16 lg:py-20 flex-col max-w-2xl px-4 mx-auto lg:max-w-4xl">
+			<div className="flex items-center py-2 sm:py-12 md:py-16 lg:py-20 2xl:py-40 flex-col max-w-2xl px-4 mx-auto lg:max-w-4xl">
 				<h1 className="text-5xl md:text-6xl lg:text-7xl font-bold">Tracker</h1>
 				<div className="flex flex-col gap-3 md:gap-4 lg:gap-5">
 					<p className="text-3xl md:text-4xl lg:text-5xl font-semibold text-center">
