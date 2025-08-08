@@ -222,159 +222,159 @@ const Hero = ({ selectedDate }: HeroProps) => {
     (habit) => !habit.completed
   ).length;
 
-  return (
-    <>
-      <div className="flex items-center py-12 md:py-16 lg:py-20 flex-col max-w-2xl px-4 mx-auto lg:max-w-4xl">
-        <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold">Tracker</h1>
-        <div className="flex flex-col gap-3 md:gap-4 lg:gap-5">
-          <p className="text-3xl md:text-4xl lg:text-5xl font-semibold text-center">
-            Change your life, starting today
-          </p>
-          <div>
-            <p className="text-center text-lg md:text-xl lg:text-2xl text-gray-600 dark:text-gray-400">
-              {selectedDate.toDateString()}
-            </p>
-          </div>
-          <form
-            onSubmit={handleSubmit(onSubmit)}
-            className="flex flex-col gap-3 md:gap-4 lg:gap-5"
-          >
-            <div className="flex flex-col gap-1 md:gap-2">
-              <Input
-                {...register("title")}
-                placeholder="Add habit title"
-                aria-invalid={errors.title ? "true" : "false"}
-                className="md:text-lg lg:text-xl"
-              />
-              {errors.title && (
-                <span className="text-sm md:text-base text-red-500">
-                  {errors.title.message}
-                </span>
-              )}
-            </div>
-            <div className="flex flex-col gap-1 md:gap-2">
-              <Textarea
-                {...register("description")}
-                placeholder="Add description"
-                aria-invalid={errors.description ? "true" : "false"}
-                className="md:text-lg lg:text-xl"
-              />
-              {errors.description && (
-                <span className="text-sm md:text-base text-red-500">
-                  {errors.description.message}
-                </span>
-              )}
-            </div>
-            <div className="flex items-center gap-4">
-              <Button
-                type="submit"
-                disabled={isSubmitting}
-                className="flex-1 md:text-lg lg:text-xl h-16"
-              >
-                {isSubmitting ? "Adding..." : "Add Habit"}
-              </Button>
-              <div className="flex items-center justify-center gap-1 bg-gray-100 dark:bg-gray-800 p-1 rounded-lg h-16">
-                <Button
-                  type="button"
-                  onClick={() => setIsGood(true)}
-                  className={cn(
-                    "px-4 md:text-base lg:text-lg transition-colors",
-                    isGood
-                      ? "bg-green-500 hover:bg-green-600 text-white"
-                      : "bg-transparent hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-800 dark:text-gray-200"
-                  )}
-                >
-                  Good
-                </Button>
-                <Button
-                  type="button"
-                  onClick={() => setIsGood(false)}
-                  className={cn(
-                    "px-4 md:text-base lg:text-lg transition-colors",
-                    !isGood
-                      ? "bg-red-500 hover:bg-red-600 text-white"
-                      : "bg-transparent hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-800 dark:text-gray-200"
-                  )}
-                >
-                  Bad
-                </Button>
-              </div>
-            </div>
-          </form>
-          <div className="flex gap-3">
-            <Dialog>
-              <DialogTrigger asChild>
-                <div className="relative max-w-fit">
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    className="border border-gray-900 dark:border-gray-100 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-                  >
-                    <List className="h-5 w-5" />
-                  </Button>
-                  {incompleteHabitsCount > 0 && (
-                    <div className="absolute -top-1 -right-1">
-                      <span className="relative flex h-3 w-3">
-                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75" />
-                        <span className="relative inline-flex rounded-full h-3 w-3 bg-red-500" />
-                      </span>
-                    </div>
-                  )}
-                </div>
-              </DialogTrigger>
-              <DialogContent className="max-h-[80vh] overflow-y-auto [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-gray-300 [&::-webkit-scrollbar-thumb]:rounded-full">
-                <DialogHeader>
-                  <DialogTitle>Your Habits</DialogTitle>
-                </DialogHeader>
-                {/* Habits Display Section */}
-                <div className="mt-4 w-full max-w-2xl">
-                  <p className="text-sm text-gray-500 mb-2">
-                    Total habits: {habits.length}, Visible for{" "}
-                    {selectedDate.toDateString()}: {visibleHabits.length}
-                  </p>
-                  {visibleHabits.length > 0 ? (
-                    <div className="flex flex-col gap-4">
-                      {habitsForSelectedDate.map((habit) => (
-                        <Habit
-                          key={habit.id}
-                          habit={{
-                            ...habit,
-                            description: habit.description ?? "",
-                          }}
-                          selectedDate={selectedDate}
-                          onToggleComplete={toggleHabitCompletion}
-                          onDeleteHabit={deleteHabit}
-                        />
-                      ))}
-                    </div>
-                  ) : (
-                    <div>
-                      <p>No habits to display for this date.</p>
-                      {habits.length > 0 && (
-                        <p className="text-sm text-gray-500 mt-2">
-                          You have {habits.length} habit(s) total, but none
-                          started on or before {selectedDate.toDateString()}.
-                        </p>
-                      )}
-                    </div>
-                  )}
-                </div>
-              </DialogContent>
-            </Dialog>
-            <Link to="/streaks" prefetch="render">
-              <Button
-                variant="outline"
-                size="icon"
-                className="border border-gray-900 dark:border-gray-100 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-              >
-                <Flame className="h-5 w-5 text-orange-500" />
-              </Button>
-            </Link>
-          </div>
-        </div>
-      </div>
-    </>
-  );
+	return (
+		<>
+			<div className="flex items-center py-12 md:py-16 lg:py-20 flex-col max-w-2xl px-4 mx-auto lg:max-w-4xl">
+				<h1 className="text-5xl md:text-6xl lg:text-7xl font-bold">Tracker</h1>
+				<div className="flex flex-col gap-3 md:gap-4 lg:gap-5">
+					<p className="text-3xl md:text-4xl lg:text-5xl font-semibold text-center">
+						Change your life, starting today
+					</p>
+					<div>
+						<p className="text-center text-lg md:text-xl lg:text-2xl text-gray-600 dark:text-gray-400">
+							{selectedDate.toDateString()}
+						</p>
+					</div>
+					<form
+						onSubmit={handleSubmit(onSubmit)}
+						className="flex flex-col gap-3 md:gap-4 lg:gap-5"
+					>
+						<div className="flex flex-col gap-1 md:gap-2">
+							<Input
+								{...register("title")}
+								placeholder="Add habit title"
+								aria-invalid={errors.title ? "true" : "false"}
+								className="md:text-lg lg:text-xl"
+							/>
+							{errors.title && (
+								<span className="text-sm md:text-base text-red-500">
+									{errors.title.message}
+								</span>
+							)}
+						</div>
+						<div className="flex flex-col gap-1 md:gap-2">
+							<Textarea
+								{...register("description")}
+								placeholder="Add description"
+								aria-invalid={errors.description ? "true" : "false"}
+								className="md:text-lg lg:text-xl"
+							/>
+							{errors.description && (
+								<span className="text-sm md:text-base text-red-500">
+									{errors.description.message}
+								</span>
+							)}
+						</div>
+						<div className="flex items-center gap-4">
+							<Button
+								type="submit"
+								disabled={isSubmitting}
+								className="flex-1 md:text-lg lg:text-xl h-16"
+							>
+								{isSubmitting ? "Adding..." : "Add Habit"}
+							</Button>
+							<div className="flex items-center justify-center bg-gray-100 dark:bg-gray-800 p-1 rounded-lg h-16">
+								<Button
+									type="button"
+									onClick={() => setIsGood(true)}
+									className={cn(
+										"px-4 py-6 rounded-r-none md:text-base lg:text-lg transition-colors",
+										isGood
+											? "bg-green-500 hover:bg-green-600 text-white"
+											: "bg-transparent hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-800 dark:text-gray-200",
+									)}
+								>
+									Good
+								</Button>
+								<Button
+									type="button"
+									onClick={() => setIsGood(false)}
+									className={cn(
+										"px-4 py-6 rounded-l-none md:text-base lg:text-lg transition-colors",
+										!isGood
+											? "bg-red-500 hover:bg-red-600 text-white"
+											: "bg-transparent hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-800 dark:text-gray-200",
+									)}
+								>
+									Bad
+								</Button>
+							</div>
+						</div>
+					</form>
+					<div className="flex gap-3">
+						<Dialog>
+							<DialogTrigger asChild>
+								<div className="relative max-w-fit">
+									<Button
+										variant="outline"
+										size="icon"
+										className="border border-gray-900 dark:border-gray-100 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+									>
+										<List className="h-5 w-5" />
+									</Button>
+									{incompleteHabitsCount > 0 && (
+										<div className="absolute -top-1 -right-1">
+											<span className="relative flex h-3 w-3">
+												<span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75" />
+												<span className="relative inline-flex rounded-full h-3 w-3 bg-red-500" />
+											</span>
+										</div>
+									)}
+								</div>
+							</DialogTrigger>
+							<DialogContent className="max-h-[80vh] overflow-y-auto [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-gray-300 [&::-webkit-scrollbar-thumb]:rounded-full">
+								<DialogHeader>
+									<DialogTitle>Your Habits</DialogTitle>
+								</DialogHeader>
+								{/* Habits Display Section */}
+								<div className="mt-4 w-full max-w-2xl">
+									<p className="text-sm text-gray-500 mb-2">
+										Total habits: {habits.length}, Visible for{" "}
+										{selectedDate.toDateString()}: {visibleHabits.length}
+									</p>
+									{visibleHabits.length > 0 ? (
+										<div className="flex flex-col gap-4">
+											{habitsForSelectedDate.map((habit) => (
+												<Habit
+													key={habit.id}
+													habit={{
+														...habit,
+														description: habit.description ?? "",
+													}}
+													selectedDate={selectedDate}
+													onToggleComplete={toggleHabitCompletion}
+													onDeleteHabit={deleteHabit}
+												/>
+											))}
+										</div>
+									) : (
+										<div>
+											<p>No habits to display for this date.</p>
+											{habits.length > 0 && (
+												<p className="text-sm text-gray-500 mt-2">
+													You have {habits.length} habit(s) total, but none
+													started on or before {selectedDate.toDateString()}.
+												</p>
+											)}
+										</div>
+									)}
+								</div>
+							</DialogContent>
+						</Dialog>
+						<Link to="/streaks" prefetch="render">
+							<Button
+								variant="outline"
+								size="icon"
+								className="border border-gray-900 dark:border-gray-100 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+							>
+								<Flame className="h-5 w-5 text-orange-500" />
+							</Button>
+						</Link>
+					</div>
+				</div>
+			</div>
+		</>
+	);
 };
 
 export default Hero;
