@@ -1,6 +1,8 @@
 import { and, eq } from "drizzle-orm";
 import { db } from "./connection";
 import {
+	type Habit,
+	type HabitCompletion,
 	type NewHabit,
 	type NewHabitCompletion,
 	type NewUser,
@@ -66,6 +68,48 @@ export const habitService = {
 			.from(habits)
 			.where(eq(habits.id, habitId));
 		return habit;
+	},
+
+	async getHabitsWithCompletions(userId: string) {
+		const rows = await db
+			.select({
+				habit: {
+					id: habits.id,
+					userId: habits.userId,
+					title: habits.title,
+					description: habits.description,
+					isGood: habits.isGood,
+					startDate: habits.startDate,
+					createdAt: habits.createdAt,
+					updatedAt: habits.updatedAt,
+				},
+				completion: {
+					id: habitCompletions.id,
+					habitId: habitCompletions.habitId,
+					date: habitCompletions.date,
+					completed: habitCompletions.completed,
+					createdAt: habitCompletions.createdAt,
+					updatedAt: habitCompletions.updatedAt,
+				},
+			})
+			.from(habits)
+			.leftJoin(habitCompletions, eq(habits.id, habitCompletions.habitId))
+			.where(eq(habits.userId, userId));
+
+		const result = rows.reduce<
+			Record<string, { habit: Habit; completions: HabitCompletion[] }>
+		>((acc, row) => {
+			const { habit, completion } = row;
+			if (!acc[habit.id]) {
+				acc[habit.id] = { habit, completions: [] };
+			}
+			if (completion) {
+				acc[habit.id].completions.push(completion);
+			}
+			return acc;
+		}, {});
+
+		return Object.values(result);
 	},
 };
 

@@ -1,16 +1,8 @@
 import { AlertTriangle } from "lucide-react";
 import { memo, useCallback, useEffect, useMemo, useState } from "react";
 import { cn } from "~/lib/utils";
-import { Button } from "./ui/Button";
-
-export interface HabitData {
-	id: string;
-	title: string;
-	description: string;
-	isGood: boolean;
-	startDate: Date; // When the habit was created
-	completions: Record<string, boolean>; // Key: YYYY-MM-DD, Value: completed status
-}
+import { Button } from "./ui/button";
+import type { Habit as HabitData } from "~/lib/types";
 
 interface HabitProps {
 	habit: HabitData;
@@ -48,7 +40,7 @@ const Habit = memo(
 			formattedSelectedDate,
 		} = useMemo(() => {
 			const dateKey = formatDateKey(selectedDate);
-			const isCompleted = habit.completions[dateKey] || false;
+			const isCompleted = habit.completions?.[dateKey] || false;
 			const isBadHabitCompleted = !habit.isGood && !isCompleted;
 			const isGoodHabitCompleted = habit.isGood && isCompleted;
 			const formattedStartDate = habit.startDate.toLocaleDateString();

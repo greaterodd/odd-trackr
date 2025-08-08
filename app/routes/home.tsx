@@ -1,8 +1,8 @@
 import {
-  type ActionFunctionArgs,
-  isRouteErrorResponse,
-  type LoaderFunctionArgs,
-  useLoaderData,
+	type ActionFunctionArgs,
+	isRouteErrorResponse,
+	type LoaderFunctionArgs,
+	useLoaderData,
 } from "react-router";
 import type { Route } from "./+types/home";
 import { useUser } from "@clerk/react-router";
@@ -11,21 +11,13 @@ import HabitTracker from "../components/HabitTracker";
 import { habitService, habitCompletionService } from "../lib/db/services";
 import { ensureUserExists } from "../lib/auth/user-sync";
 import { randomUUID } from "node:crypto";
-import { useOptimisticAuth } from "../lib/hooks/useOptimisticAuth";
 import { useOptimisticHabits } from "../lib/hooks/useOptimisticHabits";
+import type { Habit } from "~/lib/types";
+import { json } from "~/lib/utils";
 
-// Simple type for valid action intents
-type ActionIntent = "createHabit" | "toggleCompletion" | "deleteHabit";
-
-// Helper function for JSON responses
-function json<T>(data: T, init?: ResponseInit): Response {
-  return new Response(JSON.stringify(data), {
-    ...init,
-    headers: {
-      "Content-Type": "application/json",
-      ...init?.headers,
-    },
-  });
+interface LoaderData {
+	habits: Habit[];
+	isAuthenticated: boolean;
 }
 
 export function meta({ data }: Route.MetaArgs) {
@@ -163,10 +155,9 @@ export async function action(args: ActionFunctionArgs) {
 }
 
 export default function Home() {
-  const { habits: serverHabits, isAuthenticated } =
-    useLoaderData<typeof loader>();
-  const { user } = useUser();
-  const { isSignedIn, isLoaded } = useOptimisticAuth();
+	const { habits: serverHabits, isAuthenticated } =
+		useLoaderData() as LoaderData;
+  const { isSignedIn, user, isLoaded } = useUser();
   const { habits, isFromCache } = useOptimisticHabits(serverHabits, user?.id);
 
   // Determine auth state: use loader's value initially, then Clerk's once loaded

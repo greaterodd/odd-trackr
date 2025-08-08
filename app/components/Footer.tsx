@@ -42,7 +42,7 @@ const Footer = ({ selectedDate, onDateChange }: FooterProps) => {
   const canGoNext = selectedDate < today;
 
   return (
-    <footer className="fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 p-4">
+    <footer className="fixed bottom-0 left-0 right-0 bg-gray-50 dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 p-4">
       <div className="max-w-2xl mx-auto flex items-center justify-between min-h-12">
         <Button
           variant="outline"

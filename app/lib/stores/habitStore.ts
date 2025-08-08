@@ -1,12 +1,5 @@
-import { create } from 'zustand';
-
-import type { Habit as DbHabit } from "../db/schema";
-
-export interface Habit extends DbHabit {
-  completed?: boolean;
-  completions: Record<string, boolean>;
-  isOptimistic?: boolean; // Flag for optimistic updates
-}
+import { create } from "zustand";
+import type { Habit } from "~/lib/types";
 
 interface HabitState {
   habits: Habit[];
