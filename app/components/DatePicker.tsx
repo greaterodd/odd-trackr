@@ -23,7 +23,7 @@ export function DatePicker({ date, setDate }: DatePickerProps) {
     <Popover open={isOpen} onOpenChange={setIsOpen}>
       <PopoverTrigger asChild>
         <div className="flex flex-col items-center gap-1 cursor-pointer">
-          <span className="text-sm font-medium text-gray-900 dark:text-gray-100 hover:text-blue-600">
+          <span className="text-sm lg:text-base font-medium text-gray-900 dark:text-gray-100 hover:text-blue-600">
             {}
             {format(date, "EEE, MMM d")}
           </span>

@@ -224,7 +224,7 @@ const Hero = ({ selectedDate }: HeroProps) => {
 
 	return (
 		<>
-			<div className="flex items-center py-12 md:py-16 lg:py-20 flex-col max-w-2xl px-4 mx-auto lg:max-w-4xl">
+			<div className="flex items-center py-2 sm:py-12 md:py-14 lg:py-16 xl:py-20 2xl:py-24 flex-col max-w-2xl px-4 mx-auto lg:max-w-4xl">
 				<h1 className="text-5xl md:text-6xl lg:text-7xl font-bold">Tracker</h1>
 				<div className="flex flex-col gap-3 md:gap-4 lg:gap-5">
 					<p className="text-3xl md:text-4xl lg:text-5xl font-semibold text-center">
@@ -265,20 +265,20 @@ const Hero = ({ selectedDate }: HeroProps) => {
 								</span>
 							)}
 						</div>
-						<div className="flex items-center gap-4">
+						<div className="flex items-center  gap-4">
 							<Button
 								type="submit"
 								disabled={isSubmitting}
-								className="flex-1 md:text-lg lg:text-xl h-16"
+								className="flex-1 sm:text-base md:text-lg lg:text-xl sm:h-14 lg:h-16"
 							>
 								{isSubmitting ? "Adding..." : "Add Habit"}
 							</Button>
-							<div className="flex items-center justify-center bg-gray-100 dark:bg-gray-800 p-1 rounded-lg h-16">
+							<div className="flex items-center justify-center bg-gray-100 dark:bg-gray-800 p-1 rounded-lg sm:h-14 lg:h-16">
 								<Button
 									type="button"
 									onClick={() => setIsGood(true)}
 									className={cn(
-										"px-4 py-6 rounded-r-none md:text-base lg:text-lg transition-colors",
+										"px-4 sm:py-4 lg:py-6 rounded-r-none md:text-base lg:text-lg transition-colors",
 										isGood
 											? "bg-green-500 hover:bg-green-600 text-white"
 											: "bg-transparent hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-800 dark:text-gray-200",
@@ -290,7 +290,7 @@ const Hero = ({ selectedDate }: HeroProps) => {
 									type="button"
 									onClick={() => setIsGood(false)}
 									className={cn(
-										"px-4 py-6 rounded-l-none md:text-base lg:text-lg transition-colors",
+										"px-4 sm:py-4 lg:py-6 rounded-l-none md:text-base lg:text-lg transition-colors",
 										!isGood
 											? "bg-red-500 hover:bg-red-600 text-white"
 											: "bg-transparent hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-800 dark:text-gray-200",
@@ -308,7 +308,7 @@ const Hero = ({ selectedDate }: HeroProps) => {
 									<Button
 										variant="outline"
 										size="icon"
-										className="border border-gray-900 dark:border-gray-100 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+										className="lg:h-10 lg:w-10 dark:border-gray-100 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
 									>
 										<List className="h-5 w-5" />
 									</Button>
@@ -365,7 +365,7 @@ const Hero = ({ selectedDate }: HeroProps) => {
 							<Button
 								variant="outline"
 								size="icon"
-								className="border border-gray-900 dark:border-gray-100 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+								className="lg:h-10 lg:w-10 dark:border-gray-100 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
 							>
 								<Flame className="h-5 w-5 text-orange-500" />
 							</Button>
