@@ -165,8 +165,13 @@ export default function Home() {
 
   if (showSignInPrompt) {
     return (
-      <div className="text-center">
-        Pal, please authenticate above to change your life
+      <div className="text-3xl md:text-4xl lg:text-5xl 2xl:text-6xl font-semibold text-center text-balance py-24 2xl:py-32">
+        <p>
+          Pal, please authenticate above to  
+        </p>
+        <p className="text-green-600">
+          change your life
+        </p>
       </div>
     );
   }
