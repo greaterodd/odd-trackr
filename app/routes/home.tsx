@@ -14,6 +14,9 @@ import { randomUUID } from "node:crypto";
 import { useOptimisticHabits } from "../lib/hooks/useOptimisticHabits";
 import type { Habit } from "~/lib/types";
 import { json } from "~/lib/utils";
+import { Sparkles, ArrowRight, Lock } from "lucide-react";
+import { Button } from "~/components/ui/button";
+import { Link } from "react-router"
 
 interface LoaderData {
 	habits: Habit[];
@@ -165,13 +168,65 @@ export default function Home() {
 
   if (showSignInPrompt) {
     return (
-      <div className="text-3xl md:text-4xl lg:text-5xl 2xl:text-6xl font-semibold text-center text-balance py-24 2xl:py-32">
-        <p>
-          Pal, please authenticate above to  
-        </p>
-        <p className="text-green-600">
-          change your life
-        </p>
+      <div className="min-h-screen flex items-center justify-center px-4">
+        <div className="max-w-2xl mx-auto text-center space-y-8">
+          {/* Animated icon */}
+          <div className="relative">
+            <div className="absolute inset-0 animate-pulse">
+              <Sparkles className="w-16 h-16 mx-auto text-green-500/30" />
+            </div>
+            <Sparkles className="w-16 h-16 mx-auto text-green-600 animate-bounce" />
+          </div>
+          
+          {/* Main message */}
+          <div className="space-y-4">
+            <h1 className="text-3xl md:text-4xl lg:text-5xl 2xl:text-6xl font-bold text-balance leading-tight">
+              <span className="text-foreground">Pal, please</span>
+              <br />
+              <span className="text-green-600 relative">
+                change your life
+                <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-24 h-1 bg-gradient-to-r from-green-400 to-green-600 rounded-full"></div>
+              </span>
+            </h1>
+            
+            {/* Subtitle */}
+            <p className="text-lg md:text-xl text-muted-foreground max-w-lg mx-auto">
+              Start building better habits today and transform your daily routine into a path of growth
+            </p>
+          </div>
+          
+          {/* Call to action */}
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
+            <Link to="/sign-in">
+             <Button 
+              variant="outline" 
+              size="lg"
+              className="group transition-all duration-300 hover:scale-105"
+              onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+            >
+              <Lock className="w-4 h-4 mr-2" />
+              Sign In Above
+              <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
+              </Button>
+            </Link>
+           </div>
+          
+          {/* Features preview */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-8 text-sm text-muted-foreground">
+            <div className="flex items-center justify-center gap-2">
+              <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+              <span>Track Daily Progress</span>
+            </div>
+            <div className="flex items-center justify-center gap-2">
+              <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+              <span>Build Lasting Habits</span>
+            </div>
+            <div className="flex items-center justify-center gap-2">
+              <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
+              <span>Visualize Streaks</span>
+            </div>
+          </div>
+        </div>
       </div>
     );
   }
