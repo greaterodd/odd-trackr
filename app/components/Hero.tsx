@@ -244,7 +244,7 @@ const Hero = ({ selectedDate }: HeroProps) => {
 	return (
 		<div className="flex flex-col">
 			{/* Clean Header */}
-			<div className="max-w-2xl mx-auto px-4 py-8 sm:py-12 lg:py-16 text-center">
+			<div className="max-w-2xl mx-auto px-4 py-8 sm:py-12 text-center">
 				<div className="space-y-6">
 					{/* Brand */}
 					<div className="flex items-center justify-center space-x-3">
@@ -307,14 +307,14 @@ const Hero = ({ selectedDate }: HeroProps) => {
 								{isSubmitting ? "Adding..." : "Add Habit"}
 							</Button>
 							
-							<div className="flex bg-muted rounded-lg p-1">
+							<div className="flex bg-muted rounded-lg p-1 h-12">
 								<Button
 									type="button"
 									onClick={() => setIsGood(true)}
 									size="sm"
 									variant="ghost"
 									className={cn(
-										"px-4 py-2 rounded-r-none text-sm transition-all",
+										"flex-1 h-10 rounded-r-none text-sm transition-all",
 										isGood
 											? "bg-green-500 hover:bg-green-600 text-white"
 											: "hover:bg-background",
@@ -328,7 +328,7 @@ const Hero = ({ selectedDate }: HeroProps) => {
 									size="sm"
 									variant="ghost"
 									className={cn(
-										"px-4 py-2 rounded-l-none text-sm transition-all",
+										"flex-1 h-10 rounded-l-none text-sm transition-all",
 										!isGood
 											? "bg-red-500 hover:bg-red-600 text-white"
 											: "hover:bg-background",

@@ -205,7 +205,7 @@ export default function Home() {
               onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
             >
               <Lock className="w-4 h-4 mr-2" />
-              Sign In Above
+              Sign In
               <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
               </Button>
             </Link>

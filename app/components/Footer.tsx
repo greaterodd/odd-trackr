@@ -66,7 +66,7 @@ const Footer = ({ selectedDate, onDateChange }: FooterProps) => {
                 onClick={goToToday}
                 className="h-auto px-2 py-1 text-xs text-primary hover:text-primary/80"
               >
-                Today
+                Go to Today
               </Button>
             )}
           </div>
