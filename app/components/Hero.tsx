@@ -1,5 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { List, Flame } from "lucide-react";
+import { List, Flame, Plus, Calendar, Target, TrendingUp, Sparkles } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { useFetcher } from "react-router";
@@ -223,65 +223,82 @@ const Hero = ({ selectedDate }: HeroProps) => {
   ).length;
 
 	return (
-		<>
-			<div className="flex items-center py-2 sm:py-12 md:py-14 lg:py-16 xl:py-20 2xl:py-24 flex-col max-w-2xl px-4 mx-auto lg:max-w-4xl">
-				<h1 className="text-5xl md:text-6xl lg:text-7xl font-bold">Tracker</h1>
-				<div className="flex flex-col gap-3 md:gap-4 lg:gap-5">
-					<p className="text-3xl md:text-4xl lg:text-5xl font-semibold text-center">
+		<div className="flex flex-col">
+			{/* Clean Header */}
+			<div className="max-w-2xl mx-auto px-4 py-8 sm:py-12 lg:py-16 text-center">
+				<div className="space-y-6">
+					{/* Brand */}
+					<div className="flex items-center justify-center space-x-3">
+						<h1 className="text-4xl md:text-5xl lg:text-6xl font-bold">Trackr</h1>
+					</div>
+					
+					{/* Tagline */}
+					<p className="text-xl md:text-2xl lg:text-3xl font-medium text-muted-foreground">
 						Change your life, starting today
 					</p>
-					<div>
-						<p className="text-center text-lg md:text-xl lg:text-2xl text-gray-600 dark:text-gray-400">
-							{selectedDate.toDateString()}
-						</p>
+					
+					{/* Date */}
+					<div className="flex items-center justify-center space-x-2 text-lg text-muted-foreground">
+						<Calendar className="w-5 h-5" />
+						<span>{selectedDate.toDateString()}</span>
 					</div>
-					<form
-						onSubmit={handleSubmit(onSubmit)}
-						className="flex flex-col gap-3 md:gap-4 lg:gap-5"
-					>
-						<div className="flex flex-col gap-1 md:gap-2">
+				</div>
+			</div>
+
+			{/* Main Content */}
+			<div className="flex-1 max-w-2xl mx-auto px-4 pb-6 w-full">
+				{/* Add Habit Form */}
+				<div className="bg-card border border-border rounded-xl p-6 shadow-sm mb-6">
+					<form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+						<div className="space-y-2">
 							<Input
 								{...register("title")}
-								placeholder="Add habit title"
+								placeholder="What habit do you want to build?"
 								aria-invalid={errors.title ? "true" : "false"}
-								className="md:text-lg lg:text-xl"
+								className="text-base h-12"
 							/>
 							{errors.title && (
-								<span className="text-sm md:text-base text-red-500">
+								<span className="text-sm text-destructive">
 									{errors.title.message}
 								</span>
 							)}
 						</div>
-						<div className="flex flex-col gap-1 md:gap-2">
+						
+						<div className="space-y-2">
 							<Textarea
 								{...register("description")}
-								placeholder="Add description"
+								placeholder="Why is this habit important to you? (optional)"
 								aria-invalid={errors.description ? "true" : "false"}
-								className="md:text-lg lg:text-xl"
+								className="text-base resize-none"
+								rows={2}
 							/>
 							{errors.description && (
-								<span className="text-sm md:text-base text-red-500">
+								<span className="text-sm text-destructive">
 									{errors.description.message}
 								</span>
 							)}
 						</div>
-						<div className="flex items-center  gap-4">
+						
+						<div className="flex items-center gap-4">
 							<Button
 								type="submit"
 								disabled={isSubmitting}
-								className="flex-1 sm:text-base md:text-lg lg:text-xl sm:h-14 lg:h-16"
+								className="flex-1 h-12 text-base"
 							>
 								{isSubmitting ? "Adding..." : "Add Habit"}
 							</Button>
-							<div className="flex items-center justify-center bg-gray-100 dark:bg-gray-800 p-1 rounded-lg sm:h-14 lg:h-16">
+							
+							<div className="flex bg-muted rounded-lg p-1">
 								<Button
 									type="button"
 									onClick={() => setIsGood(true)}
+									size="sm"
+									variant="ghost"
 									className={cn(
-										"px-4 sm:py-4 lg:py-6 rounded-r-none md:text-base lg:text-lg transition-colors",
+										"px-4 py-2 rounded-r-none text-sm transition-all",
 										isGood
 											? "bg-green-500 hover:bg-green-600 text-white"
-											: "bg-transparent hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-800 dark:text-gray-200",
+											: "hover:bg-background",
 									)}
 								>
 									Good
@@ -289,11 +306,13 @@ const Hero = ({ selectedDate }: HeroProps) => {
 								<Button
 									type="button"
 									onClick={() => setIsGood(false)}
+									size="sm"
+									variant="ghost"
 									className={cn(
-										"px-4 sm:py-4 lg:py-6 rounded-l-none md:text-base lg:text-lg transition-colors",
+										"px-4 py-2 rounded-l-none text-sm transition-all",
 										!isGood
 											? "bg-red-500 hover:bg-red-600 text-white"
-											: "bg-transparent hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-800 dark:text-gray-200",
+											: "hover:bg-background",
 									)}
 								>
 									Bad
@@ -301,79 +320,58 @@ const Hero = ({ selectedDate }: HeroProps) => {
 							</div>
 						</div>
 					</form>
-					<div className="flex gap-3">
-						<Dialog>
-							<DialogTrigger asChild>
-								<div className="relative max-w-fit">
-									<Button
-										variant="outline"
-										size="icon"
-										className="lg:h-10 lg:w-10 dark:border-gray-100 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-									>
-										<List className="h-5 w-5" />
-									</Button>
-									{incompleteHabitsCount > 0 && (
-										<div className="absolute -top-1 -right-1">
-											<span className="relative flex h-3 w-3">
-												<span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75" />
-												<span className="relative inline-flex rounded-full h-3 w-3 bg-red-500" />
-											</span>
-										</div>
-									)}
-								</div>
-							</DialogTrigger>
-							<DialogContent className="max-h-[80vh] overflow-y-auto [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-gray-300 [&::-webkit-scrollbar-thumb]:rounded-full">
-								<DialogHeader>
-									<DialogTitle>Your Habits</DialogTitle>
-								</DialogHeader>
-								{/* Habits Display Section */}
-								<div className="mt-4 w-full max-w-2xl">
-									<p className="text-sm text-gray-500 mb-2">
-										Total habits: {habits.length}, Visible for{" "}
-										{selectedDate.toDateString()}: {visibleHabits.length}
-									</p>
-									{visibleHabits.length > 0 ? (
-										<div className="flex flex-col gap-4">
-											{habitsForSelectedDate.map((habit) => (
-												<Habit
-													key={habit.id}
-													habit={{
-														...habit,
-														description: habit.description ?? "",
-													}}
-													selectedDate={selectedDate}
-													onToggleComplete={toggleHabitCompletion}
-													onDeleteHabit={deleteHabit}
-												/>
-											))}
-										</div>
-									) : (
-										<div>
-											<p>No habits to display for this date.</p>
-											{habits.length > 0 && (
-												<p className="text-sm text-gray-500 mt-2">
-													You have {habits.length} habit(s) total, but none
-													started on or before {selectedDate.toDateString()}.
-												</p>
-											)}
-										</div>
-									)}
-								</div>
-							</DialogContent>
-						</Dialog>
-						<Link to="/streaks" prefetch="render">
-							<Button
-								variant="outline"
-								size="icon"
-								className="lg:h-10 lg:w-10 dark:border-gray-100 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-							>
-								<Flame className="h-5 w-5 text-orange-500" />
+				</div>
+
+				{/* Action Buttons */}
+				<div className="flex justify-center space-x-4">
+					<Dialog>
+						<DialogTrigger asChild>
+							<Button variant="outline" className="relative">
+								<List className="w-4 h-4 mr-2" />
+								View Habits
+								{incompleteHabitsCount > 0 && (
+									<div className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></div>
+								)}
 							</Button>
-						</Link>
-					</div>
+						</DialogTrigger>
+						<DialogContent className="max-h-[80vh] overflow-y-auto">
+							<DialogHeader>
+								<DialogTitle>Your Habits</DialogTitle>
+							</DialogHeader>
+							<div className="mt-4">
+								{visibleHabits.length > 0 ? (
+									<div className="space-y-3">
+										{habitsForSelectedDate.map((habit) => (
+											<Habit
+												key={habit.id}
+												habit={{
+													...habit,
+													description: habit.description ?? "",
+												}}
+												selectedDate={selectedDate}
+												onToggleComplete={toggleHabitCompletion}
+												onDeleteHabit={deleteHabit}
+											/>
+										))}
+									</div>
+								) : (
+									<div className="text-center py-8">
+										<p className="text-muted-foreground">No habits for this date.</p>
+									</div>
+								)}
+							</div>
+						</DialogContent>
+					</Dialog>
+					
+					<Link to="/streaks" prefetch="render">
+						<Button variant="outline">
+							<Flame className="w-4 h-4 mr-2 text-orange-500" />
+							Streaks
+						</Button>
+					</Link>
 				</div>
 			</div>
-		</>
+		</div>
 	);
 };
 

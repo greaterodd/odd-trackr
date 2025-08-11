@@ -1,7 +1,7 @@
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, Calendar, Home } from "lucide-react";
 import { useState, useEffect } from "react";
 import { Button } from "./ui/button";
-import { DatePicker } from "./DatePicker"; // ¡Importamos nuestro nuevo componente!
+import { DatePicker } from "./DatePicker";
 
 interface FooterProps {
   selectedDate: Date;
@@ -42,41 +42,47 @@ const Footer = ({ selectedDate, onDateChange }: FooterProps) => {
   const canGoNext = selectedDate < today;
 
   return (
-    <footer className="fixed bottom-0 left-0 right-0 bg-gray-50 dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 p-4">
-      <div className="max-w-2xl mx-auto flex items-center justify-between min-h-14">
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={goToPreviousDay}
-          className="flex items-center gap-2 py-2 px-0.5 text-xs lg:py-4 lg:px-2 lg:text-base"
-        >
-          <ChevronLeft className="w-4 h-4" />
-          Previous Day
-        </Button>
+    <footer className="fixed bottom-0 left-0 right-0 bg-gray-50/95 dark:bg-gray-900/95 backdrop-blur-sm border-t border-border">
+      <div className="max-w-2xl mx-auto px-4 py-4">
+        <div className="flex items-center justify-between">
+          {/* Previous Day */}
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={goToPreviousDay}
+            className="flex items-center gap-2"
+          >
+            <ChevronLeft className="w-4 h-4" />
+            <span className="hidden sm:inline">Previous</span>
+          </Button>
 
-        <div className="flex flex-col items-center gap-1">
-          <DatePicker date={selectedDate} setDate={onDateChange} />
+          {/* Center - Date Picker */}
+          <div className="flex flex-col items-center gap-2">
+            <DatePicker date={selectedDate} setDate={onDateChange} />
+            {!isToday && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={goToToday}
+                className="h-auto px-2 py-1 text-xs text-primary hover:text-primary/80"
+              >
+                Today
+              </Button>
+            )}
+          </div>
 
-          {!isToday && (
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={goToToday}
-              className="h-auto text-xs lg:text-base text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-200"
-            >
-              Go to Today
-            </Button>
-          )}
+          {/* Next Day */}
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={goToNextDay}
+            disabled={!canGoNext}
+            className="flex items-center gap-2 disabled:opacity-50"
+          >
+            <span className="hidden sm:inline">Next</span>
+            <ChevronRight className="w-4 h-4" />
+          </Button>
         </div>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={goToNextDay}
-          className="flex items-center gap-2 py-0 px-0.5 text-xs lg:py-4 lg:px-2 lg:text-base"
-        >
-          Next Day
-          <ChevronRight className="w-4 h-4" />
-        </Button>
       </div>
     </footer>
   );
