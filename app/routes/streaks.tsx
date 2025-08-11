@@ -12,19 +12,22 @@ import { json } from "~/lib/utils";
 
 // Optimized streak calculation function
 function calculateStreaks(
-  completions: HabitCompletion[]
+  completions: HabitCompletion[],
+  isGood: boolean
 ): Pick<HabitWithStreaks, "currentStreak" | "longestStreak"> {
   if (completions.length === 0) {
     return { currentStreak: 0, longestStreak: 0 };
   }
 
-  // Filter only completed habits and sort by date (newest first)
-  const completedDates = completions
-    .filter((c) => c.completed)
+  // Determine success days based on habit type:
+  // - Good habits: completed === true is a success
+  // - Bad habits: completed === false (avoided) is a success
+  const successDates = completions
+    .filter((c) => (isGood ? c.completed === true : c.completed === false))
     .map((c) => new Date(c.date))
     .sort((a, b) => b.getTime() - a.getTime());
 
-  if (completedDates.length === 0) {
+  if (successDates.length === 0) {
     return { currentStreak: 0, longestStreak: 0 };
   }
 
@@ -39,7 +42,7 @@ function calculateStreaks(
   yesterday.setDate(yesterday.getDate() - 1);
 
   // Calculate current streak
-  const mostRecentDate = new Date(completedDates[0]);
+  const mostRecentDate = new Date(successDates[0]);
   mostRecentDate.setHours(0, 0, 0, 0);
 
   if (
@@ -49,8 +52,8 @@ function calculateStreaks(
     currentStreak = 1;
     let lastDate = mostRecentDate;
 
-    for (let i = 1; i < completedDates.length; i++) {
-      const currentDate = new Date(completedDates[i]);
+    for (let i = 1; i < successDates.length; i++) {
+      const currentDate = new Date(successDates[i]);
       currentDate.setHours(0, 0, 0, 0);
 
       const dayDiff =
@@ -67,16 +70,18 @@ function calculateStreaks(
 
   // Calculate longest streak
   longestStreak = currentStreak;
-  if (completedDates.length > 0) {
+  if (successDates.length > 0) {
     tempStreak = 1;
-    for (let i = 1; i < completedDates.length; i++) {
-      const prevDate = new Date(completedDates[i - 1]);
-      const currentDate = new Date(completedDates[i]);
+    for (let i = 1; i < successDates.length; i++) {
+      const prevDate = new Date(successDates[i - 1]);
+      const currentDate = new Date(successDates[i]);
       prevDate.setHours(0, 0, 0, 0);
       currentDate.setHours(0, 0, 0, 0);
 
       const dayDiff =
         (prevDate.getTime() - currentDate.getTime()) / (1000 * 60 * 60 * 24);
+
+      // Using exact 1-day difference; assumes no gaps in success days
 
       if (dayDiff === 1) {
         tempStreak++;
@@ -108,7 +113,7 @@ export async function loader(args: LoaderFunctionArgs) {
 
     const habitsWithStreaks: HabitWithStreaks[] = habitsWithCompletions.map(
       ({ habit, completions }) => {
-        const streaks = calculateStreaks(completions);
+        const streaks = calculateStreaks(completions, habit.isGood);
         return { ...habit, ...streaks };
       },
     );

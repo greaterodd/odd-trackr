@@ -90,7 +90,7 @@ const Hero = ({ selectedDate }: HeroProps) => {
     }
   }, [fetcher.data, fetcher.state, addHabit]);
 
-  const habitPlaceholder = isGood 
+  const habitPlaceholder = isGood
     ? "What habit do you want to build?"
     : "What habit do you want to break?";
 
@@ -156,10 +156,10 @@ const Hero = ({ selectedDate }: HeroProps) => {
     if (habit) {
       const dateKey = formatDateKey(date);
       const currentCompletion = habit.completions?.[dateKey];
-      
+
       let newCompletion: boolean;
       let feedbackMessage: string;
-      
+
       if (habit.isGood) {
         // Good habit: toggle between false/undefined and true
         newCompletion = currentCompletion !== true;
@@ -238,173 +238,175 @@ const Hero = ({ selectedDate }: HeroProps) => {
 
   // Count habits that are not completed for the selected date
   const incompleteHabitsCount = habitsForSelectedDate.filter(
-    (habit) => !habit.completed
-  ).length;
+    (habit) => {
+      if (habit.isGood) return !habit.completed
+      return habit.completed
+    }).length;
 
-	return (
-		<div className="flex flex-col">
-			{/* Clean Header */}
-			<div className="max-w-2xl mx-auto px-4 py-8 sm:py-12 text-center">
-				<div className="space-y-6">
-					{/* Brand */}
-					<div className="flex items-center justify-center space-x-3">
-						<h1 className="text-4xl md:text-5xl lg:text-6xl font-bold">Trackr</h1>
-					</div>
-					
-					{/* Tagline */}
-					<p className="text-xl md:text-2xl lg:text-3xl font-medium text-muted-foreground">
-						Change your life, starting today
-					</p>
-					
-					{/* Date */}
-					<div className="flex items-center justify-center space-x-2 text-lg text-muted-foreground">
-						<Calendar className="w-5 h-5" />
-						<span>{selectedDate.toDateString()}</span>
-					</div>
-				</div>
-			</div>
+  return (
+    <div className="flex flex-col">
+      {/* Clean Header */}
+      <div className="max-w-2xl mx-auto px-4 py-8 sm:py-12 text-center">
+        <div className="space-y-6">
+          {/* Brand */}
+          <div className="flex items-center justify-center space-x-3">
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold">Trackr</h1>
+          </div>
 
-			{/* Main Content */}
-			<div className="flex-1 max-w-2xl mx-auto px-4 pb-6 w-full">
-				{/* Add Habit Form */}
-				<div className="bg-card border border-border rounded-xl p-6 shadow-sm mb-6">
-					<form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-						<div className="space-y-2">
-							<Input
-								{...register("title")}
-								placeholder={habitPlaceholder}
-								aria-invalid={errors.title ? "true" : "false"}
-								className="text-base h-12"
-							/>
-							{errors.title && (
-								<span className="text-sm text-destructive">
-									{errors.title.message}
-								</span>
-							)}
-						</div>
-						
-						<div className="space-y-2">
-							<Textarea
-								{...register("description")}
-								placeholder="Why is this habit important to you? (optional)"
-								aria-invalid={errors.description ? "true" : "false"}
-								className="text-base resize-none"
-								rows={2}
-							/>
-							{errors.description && (
-								<span className="text-sm text-destructive">
-									{errors.description.message}
-								</span>
-							)}
-						</div>
-						
-						<div className="flex items-center gap-4">
-							<Button
-								type="submit"
-								disabled={isSubmitting}
-								className="flex-1 h-12 text-base"
-							>
-								{isSubmitting ? "Adding..." : "Add Habit"}
-							</Button>
-							
-							<div className="flex bg-muted rounded-lg p-1 h-12">
-								<Button
-									type="button"
-									onClick={() => setIsGood(true)}
-									size="sm"
-									variant="ghost"
-									className={cn(
-										"flex-1 h-10 rounded-r-none text-sm transition-all",
-										isGood
-											? "bg-green-500 hover:bg-green-600 text-white"
-											: "hover:bg-background",
-									)}
-								>
-									Good
-								</Button>
-								<Button
-									type="button"
-									onClick={() => setIsGood(false)}
-									size="sm"
-									variant="ghost"
-									className={cn(
-										"flex-1 h-10 rounded-l-none text-sm transition-all",
-										!isGood
-											? "bg-red-500 hover:bg-red-600 text-white"
-											: "hover:bg-background",
-									)}
-								>
-									Bad
-								</Button>
-							</div>
-						</div>
-					</form>
-				</div>
+          {/* Tagline */}
+          <p className="text-xl md:text-2xl lg:text-3xl font-medium text-muted-foreground">
+            Change your life, starting today
+          </p>
 
-				{/* Action Buttons */}
-				<div className="flex justify-center space-x-4">
-					<Dialog>
-						<DialogTrigger asChild>
-							<Button variant="outline" className="relative">
-								<List className="w-4 h-4 mr-2" />
-								View Habits
-								{incompleteHabitsCount > 0 && (
-									<div className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></div>
-								)}
-							</Button>
-						</DialogTrigger>
-						<DialogContent className="max-w-2xl max-h-[85vh] overflow-hidden flex flex-col">
-							<DialogHeader className="flex-shrink-0">
-								<DialogTitle>Your Habits</DialogTitle>
-								<div className="flex items-center gap-4 text-sm text-muted-foreground mt-2">
-									<span>Total: {habits.length}</span>
-									<span>Today: {visibleHabits.length}</span>
-								</div>
-							</DialogHeader>
-							<div className="flex-1 overflow-y-auto min-h-0 mt-4">
-								{visibleHabits.length > 0 ? (
-									<div className="space-y-3 pr-2">
-										{habitsForSelectedDate.map((habit) => (
-											<Habit
-												key={habit.id}
-												habit={{
-													...habit,
-													description: habit.description ?? "",
-												}}
-												selectedDate={selectedDate}
-												onToggleComplete={toggleHabitCompletion}
-												onDeleteHabit={deleteHabit}
-											/>
-										))}
-									</div>
-								) : (
-									<div className="flex flex-col items-center justify-center py-12 text-center">
-										<div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mb-4">
-											<List className="w-8 h-8 text-muted-foreground" />
-										</div>
-										<p className="text-muted-foreground text-lg font-medium mb-2">No habits for this date</p>
-										<p className="text-muted-foreground/70 text-sm">
-											{habits.length > 0 
-												? `You have ${habits.length} habit${habits.length === 1 ? '' : 's'} total, but none started on or before this date.`
-												: "Start by adding your first habit above."
-											}
-										</p>
-									</div>
-								)}
-							</div>
-						</DialogContent>
-					</Dialog>
-					
-					<Link to="/streaks" prefetch="render">
-						<Button variant="outline">
-							<Flame className="w-4 h-4 mr-2 text-orange-500" />
-							Streaks
-						</Button>
-					</Link>
-				</div>
-			</div>
-		</div>
-	);
+          {/* Date */}
+          <div className="flex items-center justify-center space-x-2 text-lg text-muted-foreground">
+            <Calendar className="w-5 h-5" />
+            <span>{selectedDate.toDateString()}</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Main Content */}
+      <div className="flex-1 max-w-2xl mx-auto px-4 pb-6 w-full">
+        {/* Add Habit Form */}
+        <div className="bg-card border border-border rounded-xl p-6 shadow-sm mb-6">
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+            <div className="space-y-2">
+              <Input
+                {...register("title")}
+                placeholder={habitPlaceholder}
+                aria-invalid={errors.title ? "true" : "false"}
+                className="text-base h-12"
+              />
+              {errors.title && (
+                <span className="text-sm text-destructive">
+                  {errors.title.message}
+                </span>
+              )}
+            </div>
+
+            <div className="space-y-2">
+              <Textarea
+                {...register("description")}
+                placeholder="Why is this habit important to you? (optional)"
+                aria-invalid={errors.description ? "true" : "false"}
+                className="text-base resize-none"
+                rows={2}
+              />
+              {errors.description && (
+                <span className="text-sm text-destructive">
+                  {errors.description.message}
+                </span>
+              )}
+            </div>
+
+            <div className="flex items-center gap-4">
+              <Button
+                type="submit"
+                disabled={isSubmitting}
+                className="flex-1 h-12 text-base"
+              >
+                {isSubmitting ? "Adding..." : "Add Habit"}
+              </Button>
+
+              <div className="flex bg-muted rounded-lg p-1 h-12">
+                <Button
+                  type="button"
+                  onClick={() => setIsGood(true)}
+                  size="sm"
+                  variant="ghost"
+                  className={cn(
+                    "flex-1 h-10 rounded-r-none text-sm transition-all",
+                    isGood
+                      ? "bg-green-500 hover:bg-green-600 text-white"
+                      : "hover:bg-background",
+                  )}
+                >
+                  Good
+                </Button>
+                <Button
+                  type="button"
+                  onClick={() => setIsGood(false)}
+                  size="sm"
+                  variant="ghost"
+                  className={cn(
+                    "flex-1 h-10 rounded-l-none text-sm transition-all",
+                    !isGood
+                      ? "bg-red-500 hover:bg-red-600 text-white"
+                      : "hover:bg-background",
+                  )}
+                >
+                  Bad
+                </Button>
+              </div>
+            </div>
+          </form>
+        </div>
+
+        {/* Action Buttons */}
+        <div className="flex justify-center space-x-4">
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button variant="outline" className="relative">
+                <List className="w-4 h-4 mr-2" />
+                View Habits
+                {incompleteHabitsCount > 0 && (
+                  <div className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></div>
+                )}
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-2xl max-h-[85vh] overflow-hidden flex flex-col">
+              <DialogHeader className="flex-shrink-0">
+                <DialogTitle>Your Habits</DialogTitle>
+                <div className="flex items-center gap-4 text-sm text-muted-foreground mt-2">
+                  <span>Total: {habits.length}</span>
+                  <span>Today: {visibleHabits.length}</span>
+                </div>
+              </DialogHeader>
+              <div className="flex-1 overflow-y-auto min-h-0 mt-4">
+                {visibleHabits.length > 0 ? (
+                  <div className="space-y-3 pr-2">
+                    {habitsForSelectedDate.map((habit) => (
+                      <Habit
+                        key={habit.id}
+                        habit={{
+                          ...habit,
+                          description: habit.description ?? "",
+                        }}
+                        selectedDate={selectedDate}
+                        onToggleComplete={toggleHabitCompletion}
+                        onDeleteHabit={deleteHabit}
+                      />
+                    ))}
+                  </div>
+                ) : (
+                  <div className="flex flex-col items-center justify-center py-12 text-center">
+                    <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mb-4">
+                      <List className="w-8 h-8 text-muted-foreground" />
+                    </div>
+                    <p className="text-muted-foreground text-lg font-medium mb-2">No habits for this date</p>
+                    <p className="text-muted-foreground/70 text-sm">
+                      {habits.length > 0
+                        ? `You have ${habits.length} habit${habits.length === 1 ? '' : 's'} total, but none started on or before this date.`
+                        : "Start by adding your first habit above."
+                      }
+                    </p>
+                  </div>
+                )}
+              </div>
+            </DialogContent>
+          </Dialog>
+
+          <Link to="/streaks" prefetch="render">
+            <Button variant="outline">
+              <Flame className="w-4 h-4 mr-2 text-orange-500" />
+              Streaks
+            </Button>
+          </Link>
+        </div>
+      </div>
+    </div>
+  );
 };
 
 export default Hero;
