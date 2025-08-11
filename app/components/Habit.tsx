@@ -1,4 +1,4 @@
-import { AlertTriangle } from "lucide-react";
+import { AlertTriangle, Check, X, Trash2 } from "lucide-react";
 import { memo, useCallback, useEffect, useMemo, useState } from "react";
 import { cn } from "~/lib/utils";
 import { Button } from "./ui/button";
@@ -34,22 +34,28 @@ const Habit = memo(
 		const {
 			dateKey,
 			isCompleted,
-			isBadHabitCompleted,
+			isBadHabitAvoided,
 			isGoodHabitCompleted,
 			formattedStartDate,
 			formattedSelectedDate,
 		} = useMemo(() => {
 			const dateKey = formatDateKey(selectedDate);
-			const isCompleted = habit.completions?.[dateKey] || false;
-			const isBadHabitCompleted = !habit.isGood && !isCompleted;
-			const isGoodHabitCompleted = habit.isGood && isCompleted;
+			const isCompleted = habit.completions?.[dateKey];
+			
+			// For bad habits: undefined/null/true = did the bad thing (default state)
+			// false = explicitly marked as avoided
+			
+			// For good habits: undefined/null/false = not done, true = completed
+			const isBadHabitAvoided = !habit.isGood && isCompleted === false;
+			const isGoodHabitCompleted = habit.isGood && isCompleted === true;
+			
 			const formattedStartDate = habit.startDate.toLocaleDateString();
 			const formattedSelectedDate = selectedDate.toLocaleDateString();
 
 			return {
 				dateKey,
 				isCompleted,
-				isBadHabitCompleted,
+				isBadHabitAvoided,
 				isGoodHabitCompleted,
 				formattedStartDate,
 				formattedSelectedDate,
@@ -102,125 +108,139 @@ const Habit = memo(
 		return (
 			<div
 				className={cn(
-					"bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4 shadow-sm hover:shadow-md transition-all",
-					isGoodHabitCompleted &&
-						"bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800",
-					isBadHabitCompleted &&
-						"bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800",
-					showDeleteConfirm &&
-						"border-red-200 dark:border-red-800 shadow-red-100 dark:shadow-red-900/20",
+					"bg-card border border-border rounded-xl p-4 transition-all hover:shadow-sm",
+					// Good habit completed - green success state
+					isGoodHabitCompleted && "bg-green-50 dark:bg-green-950/50 border-green-200 dark:border-green-800",
+					// Bad habit avoided - green success state  
+					isBadHabitAvoided && "bg-green-50 dark:bg-green-950/50 border-green-200 dark:border-green-800",
+					// Bad habit default state (did the bad thing) - red warning state
+					!habit.isGood && !isBadHabitAvoided && "bg-red-50 dark:bg-red-950/50 border-red-200 dark:border-red-800",
 					className,
 				)}
 			>
-				<div className="mb-2 flex items-center gap-2">
-					<h3
-						className={cn(
-							"text-lg font-semibold",
-							isGoodHabitCompleted &&
-								"text-green-800 dark:text-green-200 line-through",
-							isBadHabitCompleted &&
-								"text-red-800 dark:text-red-200 line-through",
-							!isGoodHabitCompleted &&
-								!isBadHabitCompleted &&
-								"text-gray-900 dark:text-gray-100",
+				{/* Header */}
+				<div className="flex items-start justify-between mb-3">
+					<div className="flex-1 min-w-0">
+						<div className="flex items-center gap-2 mb-1">
+							<h3 className={cn(
+								"font-medium text-base truncate",
+								// Good habit completed - green
+								isGoodHabitCompleted && "text-green-700 dark:text-green-300",
+								// Bad habit avoided - green (success)
+								isBadHabitAvoided && "text-green-700 dark:text-green-300",
+								// Bad habit default state (did it) - red
+								!habit.isGood && !isBadHabitAvoided && "text-red-700 dark:text-red-300",
+								// Default state for good habits not completed
+								habit.isGood && !isGoodHabitCompleted && "text-foreground"
+							)}>
+								{habit.title}
+							</h3>
+							<div className={cn(
+								"flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium shrink-0",
+								habit.isGood 
+									? "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300"
+									: isBadHabitAvoided
+										? "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300"
+										: "bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300"
+							)}>
+								{habit.isGood ? (
+									<>
+										<Check className="w-3 h-3" />
+										Good
+									</>
+								) : isBadHabitAvoided ? (
+									<>
+										<Check className="w-3 h-3" />
+										Avoided
+									</>
+								) : (
+									<>
+										<X className="w-3 h-3" />
+										Bad
+									</>
+								)}
+							</div>
+						</div>
+						{habit.description && (
+							<p className="text-sm text-muted-foreground line-clamp-2">
+								{habit.description}
+							</p>
 						)}
-					>
-						{habit.title}
-					</h3>
-					<span
-						className={cn(
-							"text-xs font-semibold px-2 py-1 rounded-full",
-							habit.isGood
-								? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
-								: "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200",
-						)}
-					>
-						{habit.isGood ? "Good" : "Bad"}
-					</span>
+					</div>
 				</div>
-				<p
-					className={cn(
-						"text-sm mb-3",
-						isGoodHabitCompleted && "text-green-700 dark:text-green-300",
-						isBadHabitCompleted && "text-red-700 dark:text-red-300",
-						!isGoodHabitCompleted &&
-							!isBadHabitCompleted &&
-							"text-gray-600 dark:text-gray-300",
-					)}
-				>
-					{habit.description}
-				</p>
-				<div className="flex justify-between items-center text-xs">
-					<span className="text-gray-400 dark:text-gray-500">
-						Started: {formattedStartDate}
+
+				{/* Actions */}
+				<div className="flex items-center justify-between">
+					<span className="text-xs text-muted-foreground">
+						Started {formattedStartDate}
 					</span>
+					
 					<div className="flex items-center gap-2">
 						{showDeleteConfirm ? (
-							<div className="flex items-center gap-2 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg px-3 py-2 shadow-sm animate-in fade-in duration-200">
-								<AlertTriangle className="h-4 w-4 text-red-600 dark:text-red-400" />
-								<span className="text-xs font-medium text-red-700 dark:text-red-300 mr-1">
-									Delete?
-								</span>
-								<div className="flex gap-1">
-									<Button
-										variant="destructive"
-										size="sm"
-										className="px-2.5 py-1 text-xs h-7 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-md shadow-sm"
-										onClick={handleConfirmDelete}
-									>
-										Yes
-									</Button>
-									<Button
-										variant="secondary"
-										size="sm"
-										className="px-2.5 py-1 text-xs h-7 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 font-semibold rounded-md shadow-sm"
-										onClick={handleCancelDelete}
-									>
-										No
-									</Button>
-								</div>
-							</div>
-						) : (
-							<>
-								{isGoodHabitCompleted && (
-									<span className="text-green-600 dark:text-green-400">
-										Completed: {formattedSelectedDate}
-									</span>
-								)}
-								{isBadHabitCompleted && (
-									<span className="text-red-600 dark:text-red-400">
-										Avoided: {formattedSelectedDate}
-									</span>
-								)}
+							<div className="flex items-center gap-2 bg-destructive/10 border border-destructive/20 rounded-lg px-3 py-1.5">
+								<AlertTriangle className="w-3 h-3 text-destructive" />
+								<span className="text-xs font-medium text-destructive">Delete?</span>
 								<Button
+									variant="destructive"
 									size="sm"
-									variant={
-										isGoodHabitCompleted || isBadHabitCompleted
-											? "default"
-											: "outline"
-									}
-									onClick={handleToggleComplete}
-									className={cn(
-										"shrink-0 transition-all",
-										isGoodHabitCompleted && "bg-green-600 hover:bg-green-700",
-										isBadHabitCompleted && "bg-red-600 hover:bg-red-700",
-									)}
+									className="h-6 px-2 text-xs"
+									onClick={handleConfirmDelete}
 								>
-									{isGoodHabitCompleted
-										? "✓ Done"
-										: isBadHabitCompleted
-											? "✗ Avoided"
-											: habit.isGood
-												? "Mark Done"
-												: "Mark as Avoided"}
+									Yes
 								</Button>
 								<Button
 									variant="ghost"
 									size="sm"
-									className="px-3 py-1.5 text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all"
+									className="h-6 px-2 text-xs"
+									onClick={handleCancelDelete}
+								>
+									No
+								</Button>
+							</div>
+						) : (
+							<>
+								<Button
+									size="sm"
+									variant={isGoodHabitCompleted || isBadHabitAvoided ? "default" : "outline"}
+									onClick={handleToggleComplete}
+									className={cn(
+										"h-8 w-24 text-xs font-medium",
+										// Good habit completed - green
+										isGoodHabitCompleted && "bg-green-600 hover:bg-green-700 text-white",
+										// Bad habit avoided - green (success)
+										isBadHabitAvoided && "bg-green-600 hover:bg-green-700 text-white"
+									)}
+								>
+									{habit.isGood ? (
+										// Good habit logic
+										isGoodHabitCompleted ? (
+											<>
+												<Check className="w-3 h-3 mr-1" />
+												Done
+											</>
+										) : (
+											"Mark Done"
+										)
+									) : (
+										// Bad habit logic - simple toggle between avoided and did it
+										isBadHabitAvoided ? (
+											<>
+												<Check className="w-3 h-3 mr-1" />
+												Avoided
+											</>
+										) : (
+											"Mark Avoided"
+										)
+									)}
+								</Button>
+								
+								<Button
+									variant="ghost"
+									size="sm"
+									className="h-8 w-8 p-0 text-muted-foreground hover:text-destructive"
 									onClick={handleDeleteClick}
 								>
-									Delete
+									<Trash2 className="w-3 h-3" />
 								</Button>
 							</>
 						)}

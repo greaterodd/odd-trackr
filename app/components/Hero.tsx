@@ -151,8 +151,25 @@ const Hero = ({ selectedDate }: HeroProps) => {
 
     if (habit) {
       const dateKey = formatDateKey(date);
-      const currentCompletion = habit.completions?.[dateKey] || false;
-      const newCompletion = !currentCompletion;
+      const currentCompletion = habit.completions?.[dateKey];
+      
+      let newCompletion: boolean;
+      let feedbackMessage: string;
+      
+      if (habit.isGood) {
+        // Good habit: toggle between false/undefined and true
+        newCompletion = currentCompletion !== true;
+        feedbackMessage = newCompletion ? "Marked as completed!" : "Marked as incomplete!";
+      } else {
+        // Bad habit: simple toggle between avoided (false) and did it (true/undefined/null)
+        if (currentCompletion === false) {
+          newCompletion = true; // Mark as did it (back to default state)
+          feedbackMessage = "Marked as done";
+        } else {
+          newCompletion = false; // Mark as avoided
+          feedbackMessage = "Great! Marked as avoided!";
+        }
+      }
 
       // Optimistically update the store immediately
       updateHabit(habitId, {
@@ -161,9 +178,7 @@ const Hero = ({ selectedDate }: HeroProps) => {
       });
 
       // Show immediate feedback
-      toast.success(
-        newCompletion ? "Marked as completed!" : "Marked as incomplete!"
-      );
+      toast.success(feedbackMessage);
 
       // Send to server in background
       fetcher.submit(
@@ -334,13 +349,17 @@ const Hero = ({ selectedDate }: HeroProps) => {
 								)}
 							</Button>
 						</DialogTrigger>
-						<DialogContent className="max-h-[80vh] overflow-y-auto">
-							<DialogHeader>
+						<DialogContent className="max-w-2xl max-h-[85vh] overflow-hidden flex flex-col">
+							<DialogHeader className="flex-shrink-0">
 								<DialogTitle>Your Habits</DialogTitle>
+								<div className="flex items-center gap-4 text-sm text-muted-foreground mt-2">
+									<span>Total: {habits.length}</span>
+									<span>Today: {visibleHabits.length}</span>
+								</div>
 							</DialogHeader>
-							<div className="mt-4">
+							<div className="flex-1 overflow-y-auto min-h-0 mt-4">
 								{visibleHabits.length > 0 ? (
-									<div className="space-y-3">
+									<div className="space-y-3 pr-2">
 										{habitsForSelectedDate.map((habit) => (
 											<Habit
 												key={habit.id}
@@ -355,8 +374,17 @@ const Hero = ({ selectedDate }: HeroProps) => {
 										))}
 									</div>
 								) : (
-									<div className="text-center py-8">
-										<p className="text-muted-foreground">No habits for this date.</p>
+									<div className="flex flex-col items-center justify-center py-12 text-center">
+										<div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mb-4">
+											<List className="w-8 h-8 text-muted-foreground" />
+										</div>
+										<p className="text-muted-foreground text-lg font-medium mb-2">No habits for this date</p>
+										<p className="text-muted-foreground/70 text-sm">
+											{habits.length > 0 
+												? `You have ${habits.length} habit${habits.length === 1 ? '' : 's'} total, but none started on or before this date.`
+												: "Start by adding your first habit above."
+											}
+										</p>
 									</div>
 								)}
 							</div>
