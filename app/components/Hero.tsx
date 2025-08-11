@@ -90,6 +90,10 @@ const Hero = ({ selectedDate }: HeroProps) => {
     }
   }, [fetcher.data, fetcher.state, addHabit]);
 
+  const habitPlaceholder = isGood 
+    ? "What habit do you want to build?"
+    : "What habit do you want to break?";
+
   useHotKey(
     "Backspace",
     () => {
@@ -268,7 +272,7 @@ const Hero = ({ selectedDate }: HeroProps) => {
 						<div className="space-y-2">
 							<Input
 								{...register("title")}
-								placeholder="What habit do you want to build?"
+								placeholder={habitPlaceholder}
 								aria-invalid={errors.title ? "true" : "false"}
 								className="text-base h-12"
 							/>
