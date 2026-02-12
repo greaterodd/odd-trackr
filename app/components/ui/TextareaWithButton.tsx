@@ -1,4 +1,4 @@
-import { Button } from "./Button";
+import { Button } from "./button";
 import { Textarea } from "./Textarea";
 export function TextareaWithButton() {
 	return (

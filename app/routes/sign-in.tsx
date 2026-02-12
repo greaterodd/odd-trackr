@@ -4,9 +4,12 @@ import { Sparkles, Shield, Cloud, Lock } from "lucide-react";
 
 export function meta({}: Route.MetaArgs) {
   return [
-    { title: "Trackr | Sign In"},
-    { name: "description", content: "Welcome to your next project!" },
-  ]
+    { title: "Trackr | Sign In" },
+    {
+      name: "description",
+      content: "Sign in to Trackr and continue building stronger habits.",
+    },
+  ];
 }
 
 export default function LoginPage() {
@@ -15,10 +18,13 @@ export default function LoginPage() {
       <div className="w-full max-w-md space-y-8">
         <div className="text-center space-y-6">
           <div className="relative mx-auto w-20 h-20">
-            <div className="absolute inset-0 animate-pulse">
-              <Sparkles className="w-20 h-20 text-primary/30" />
+            <div className="absolute inset-0 motion-safe:animate-pulse">
+              <Sparkles className="h-20 w-20 text-primary/30" aria-hidden="true" />
             </div>
-            <Sparkles className="w-20 h-20 text-primary animate-bounce" />
+            <Sparkles
+              className="h-20 w-20 text-primary motion-safe:animate-bounce"
+              aria-hidden="true"
+            />
           </div>
           
           <div className="space-y-2">
@@ -41,19 +47,28 @@ export default function LoginPage() {
           <div className="grid grid-cols-3 gap-4 text-center">
             <div className="flex flex-col items-center space-y-2">
               <div className="w-10 h-10 bg-green-100 dark:bg-green-900/20 rounded-full flex items-center justify-center">
-                <Shield className="w-5 h-5 text-green-600 dark:text-green-400" />
+                <Shield
+                  className="h-5 w-5 text-green-600 dark:text-green-400"
+                  aria-hidden="true"
+                />
               </div>
               <span className="text-xs text-muted-foreground">Secure</span>
             </div>
             <div className="flex flex-col items-center space-y-2">
               <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900/20 rounded-full flex items-center justify-center">
-                <Lock className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                <Lock
+                  className="h-5 w-5 text-blue-600 dark:text-blue-400"
+                  aria-hidden="true"
+                />
               </div>
               <span className="text-xs text-muted-foreground">Private</span>
             </div>
             <div className="flex flex-col items-center space-y-2">
-              <div className="w-10 h-10 bg-purple-100 dark:bg-purple-900/20 rounded-full flex items-center justify-center">
-                <Cloud className="w-5 h-5 text-purple-600 dark:text-purple-400" />
+              <div className="w-10 h-10 bg-emerald-100 dark:bg-emerald-900/20 rounded-full flex items-center justify-center">
+                <Cloud
+                  className="h-5 w-5 text-emerald-600 dark:text-emerald-400"
+                  aria-hidden="true"
+                />
               </div>
               <span className="text-xs text-muted-foreground">Synced</span>
             </div>

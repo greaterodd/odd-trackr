@@ -5,13 +5,11 @@ import {
   Scripts,
   ScrollRestoration,
   isRouteErrorResponse,
-  NavLink,
 } from "react-router";
 import { rootAuthLoader } from "@clerk/react-router/ssr.server";
 import {
   ClerkProvider,
   SignedIn,
-  SignedOut,
   UserButton,
 } from "@clerk/react-router";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -50,8 +48,16 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <Links />
       </head>
       <body>
+        <a
+          href="#main-content"
+          className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-md focus:bg-background focus:px-3 focus:py-2 focus:text-sm focus:font-medium focus:shadow-md"
+        >
+          Skip to main content
+        </a>
         {children}
-        <Toaster position="top-right" />
+        <div aria-live="polite" aria-atomic="false">
+          <Toaster position="top-right" />
+        </div>
         <ScrollRestoration />
         <Scripts />
       </body>
@@ -63,16 +69,12 @@ export default function App({ loaderData }: Route.ComponentProps) {
   return (
     <ClerkProvider loaderData={loaderData} publishableKey={PUBLISHABLE_KEY}>
       <QueryClientProvider client={queryClient}>
-          <SignedOut>
-            {/* <NavLink to="/sign-in">Sign in</NavLink> */}
-          </SignedOut>
-          <SignedIn>
-          <header className="flex items-center justify-center py-2 px-4 min-h-18 2xl:min-h-24 2xl:text-2xl bg-gray-50 dark:bg-gray-900">
+        <SignedIn>
+          <header className="flex items-center justify-center bg-gray-50 px-4 py-2 dark:bg-gray-900">
             <UserButton />
           </header>
-
-          </SignedIn>
-        <main>
+        </SignedIn>
+        <main id="main-content">
           <Outlet />
         </main>
       </QueryClientProvider>

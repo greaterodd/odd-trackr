@@ -1,6 +1,14 @@
-import type { HabitData } from "~/components/Habit";
 import type { Habit, HabitCompletion } from "./schema";
 import { habitCompletionService, habitService } from "./services";
+
+interface HabitData {
+	id: string;
+	title: string;
+	description?: string;
+	isGood: boolean;
+	startDate: Date;
+	completions: Record<string, boolean>;
+}
 
 // Utility to generate unique IDs (simple implementation)
 function generateId(): string {
@@ -29,19 +37,20 @@ export async function migrateLocalStorageToDatabase(
 			});
 
 			// Migrate all completions for this habit
-			const completionPromises = Object.entries(localHabit.completions).map(
-				([date, completed]) =>
-					habitCompletionService.setCompletion({
-						id: generateId(),
-						habitId: dbHabit.id,
-						date,
-						completed,
-					}),
+			const completionPromises = Object.entries(
+				localHabit.completions ?? {},
+			).map(([date, completed]) =>
+				habitCompletionService.setCompletion({
+					id: generateId(),
+					habitId: dbHabit.id,
+					date,
+					completed: completed === true,
+				}),
 			);
 
 			await Promise.all(completionPromises);
 			console.log(
-				`Migrated habit: ${localHabit.title} with ${Object.keys(localHabit.completions).length} completions`,
+				`Migrated habit: ${localHabit.title} with ${Object.keys(localHabit.completions ?? {}).length} completions`,
 			);
 		} catch (error) {
 			console.error(`Failed to migrate habit ${localHabit.title}:`, error);
@@ -56,25 +65,24 @@ export function convertDbHabitsToLocalFormat(
 	dbHabits: Habit[],
 	completions: HabitCompletion[],
 ): HabitData[] {
-	return dbHabits.map((habit) => {
-		// Build completions object for this habit
-		const habitCompletions = completions
-			.filter((completion) => completion.habitId === habit.id)
-			.reduce(
-				(acc, completion) => {
-					acc[completion.date] = completion.completed;
-					return acc;
-				},
-				{} as Record<string, boolean>,
-			);
+	const completionsByHabit = completions.reduce<
+		Record<string, Record<string, boolean>>
+	>((acc, completion) => {
+		if (!acc[completion.habitId]) {
+			acc[completion.habitId] = {};
+		}
+		acc[completion.habitId][completion.date] = completion.completed;
+		return acc;
+	}, {});
 
+	return dbHabits.map((habit) => {
 		return {
 			id: habit.id,
 			title: habit.title,
 			description: habit.description || "",
 			isGood: habit.isGood,
 			startDate: new Date(habit.startDate),
-			completions: habitCompletions,
+			completions: completionsByHabit[habit.id] ?? {},
 		};
 	});
 }

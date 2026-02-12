@@ -12,3 +12,9 @@ public/mockServiceWorker.js
 *.db
 *.sqlite
 local.db
+
+# Agents
+.agents/
+.claude
+
+pnpm-workspace.yaml

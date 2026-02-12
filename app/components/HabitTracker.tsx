@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import type { Habit } from "~/lib/stores/habitStore";
+import type { Habit } from "~/lib/types";
 import { useHabitStore } from "~/lib/stores/habitStore";
 import Footer from "./Footer";
 import Hero from "./Hero";
@@ -41,9 +41,10 @@ export default function HabitTracker({
           <div className="flex items-center">
             <div className="flex-shrink-0">
               <svg
-                className="h-4 w-4 text-blue-400 animate-pulse"
+                className="h-4 w-4 text-blue-400 motion-safe:animate-pulse"
                 fill="currentColor"
                 viewBox="0 0 20 20"
+                aria-hidden="true"
               >
                 <title>Loading icon</title>
                 <path
@@ -54,13 +55,13 @@ export default function HabitTracker({
               </svg>
             </div>
             <div className="ml-2">
-              <p className="text-sm text-blue-700">Syncing latest data...</p>
+              <p className="text-sm text-blue-700">Syncing latest data…</p>
             </div>
           </div>
         </div>
       )}
 
-      <Hero selectedDate={selectedDate} onDateChange={handleDateChange} />
+      <Hero selectedDate={selectedDate} />
       <Footer selectedDate={selectedDate} onDateChange={handleDateChange} />
     </div>
   );
