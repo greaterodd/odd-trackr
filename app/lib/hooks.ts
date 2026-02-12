@@ -12,6 +12,10 @@ export function usePersistentState<T>(
 	},
 ): [T, (value: T | ((prevState: T) => T)) => void] {
 	const [state, setState] = useState<T>(() => {
+		if (typeof window === "undefined") {
+			return defaultValue;
+		}
+
 		try {
 			const item = window.localStorage.getItem(key);
 			return item ? serializer.parse(item) : defaultValue;
@@ -23,6 +27,10 @@ export function usePersistentState<T>(
 
 	const setValue = useCallback(
 		(value: T | ((prevState: T) => T)) => {
+			if (typeof window === "undefined") {
+				return;
+			}
+
 			try {
 				setState((prevState) => {
 					const newValue = value instanceof Function ? value(prevState) : value;

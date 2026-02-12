@@ -1,27 +1,19 @@
-import { ChevronLeft, ChevronRight, Calendar, Home } from "lucide-react";
-import { useState, useEffect } from "react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "./ui/button";
 import { DatePicker } from "./DatePicker";
 
 interface FooterProps {
   selectedDate: Date;
-  onDateChange: (date: Date | undefined) => void; // Actualizamos el tipo aquí
+  onDateChange: (date: Date | undefined) => void;
 }
 
 const Footer = ({ selectedDate, onDateChange }: FooterProps) => {
   const today = new Date();
-  const isToday = selectedDate.toDateString() === today.toDateString();
-  const [isAnimating, setIsAnimating] = useState(false);
-
-  useEffect(() => {
-    if (selectedDate.getTime() !== new Date().setTime(selectedDate.getTime())) {
-      setIsAnimating(true);
-      const timer = setTimeout(() => {
-        setIsAnimating(false);
-      }, 200);
-      return () => clearTimeout(timer);
-    }
-  }, [selectedDate]);
+  const todayAtMidnight = new Date(today);
+  todayAtMidnight.setHours(0, 0, 0, 0);
+  const selectedAtMidnight = new Date(selectedDate);
+  selectedAtMidnight.setHours(0, 0, 0, 0);
+  const isToday = selectedAtMidnight.getTime() === todayAtMidnight.getTime();
 
   const goToPreviousDay = () => {
     const previousDay = new Date(selectedDate);
@@ -39,7 +31,7 @@ const Footer = ({ selectedDate, onDateChange }: FooterProps) => {
     onDateChange(new Date());
   };
 
-  const canGoNext = selectedDate < today;
+  const canGoNext = selectedAtMidnight < todayAtMidnight;
 
   return (
     <footer className="fixed bottom-0 left-0 right-0 bg-gray-50/95 dark:bg-gray-900/95 backdrop-blur-sm border-t border-border">
@@ -51,8 +43,9 @@ const Footer = ({ selectedDate, onDateChange }: FooterProps) => {
             size="sm"
             onClick={goToPreviousDay}
             className="flex items-center gap-2"
+            aria-label="Go to previous day"
           >
-            <ChevronLeft className="w-4 h-4" />
+            <ChevronLeft className="w-4 h-4" aria-hidden="true" />
             <span className="hidden sm:inline">Previous</span>
           </Button>
 
@@ -78,9 +71,10 @@ const Footer = ({ selectedDate, onDateChange }: FooterProps) => {
             onClick={goToNextDay}
             disabled={!canGoNext}
             className="flex items-center gap-2 disabled:opacity-50"
+            aria-label="Go to next day"
           >
             <span className="hidden sm:inline">Next</span>
-            <ChevronRight className="w-4 h-4" />
+            <ChevronRight className="w-4 h-4" aria-hidden="true" />
           </Button>
         </div>
       </div>

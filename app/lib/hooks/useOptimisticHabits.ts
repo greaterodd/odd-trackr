@@ -1,7 +1,7 @@
-import { useEffect, useState } from 'react';
-import type { Habit } from '../stores/habitStore';
+import { useEffect, useState } from "react";
+import type { Habit } from "~/lib/types";
 
-const HABITS_CACHE_KEY = 'habits-cache';
+const HABITS_CACHE_KEY = "habits-cache";
 const CACHE_DURATION = 1000 * 60 * 60 * 24; // 24 hours
 
 interface CachedHabits {
@@ -29,9 +29,9 @@ export function useOptimisticHabits(serverHabits: Habit[], userId?: string) {
         
         if (!isExpired && isCorrectUser && parsedCache.habits.length > 0) {
           // Convert cached date strings back to Date objects
-          const habitsWithDates = parsedCache.habits.map(habit => ({
+          const habitsWithDates = parsedCache.habits.map((habit) => ({
             ...habit,
-            startDate: new Date(habit.startDate)
+            startDate: new Date(habit.startDate),
           }));
           setCachedHabits(habitsWithDates);
           setHasCachedData(true);
@@ -50,7 +50,7 @@ export function useOptimisticHabits(serverHabits: Habit[], userId?: string) {
         const cacheData: CachedHabits = {
           habits: serverHabits,
           timestamp: Date.now(),
-          userId
+          userId,
         };
         localStorage.setItem(HABITS_CACHE_KEY, JSON.stringify(cacheData));
       } else {
@@ -68,6 +68,6 @@ export function useOptimisticHabits(serverHabits: Habit[], userId?: string) {
   return {
     habits: habitsToShow,
     isFromCache: hasCachedData && serverHabits.length === 0 && cachedHabits.length > 0,
-    hasData: habitsToShow.length > 0
+    hasData: habitsToShow.length > 0,
   };
 }
